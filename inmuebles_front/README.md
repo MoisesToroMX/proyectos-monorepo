@@ -1,8 +1,8 @@
-# 📊 Inmuebles - Sistema de Gestión de Inmuebles y Tareas
+# 📊 Proyectos - Sistema de Gestión de Proyectos y Tareas
 
 <div align="center">
 
-![Inmuebles Logo](https://img.shields.io/badge/Inmuebles-Real%20Estate%20Ops-blue?style=for-the-badge&logo=react)
+![Proyectos Logo](https://img.shields.io/badge/Proyectos-Project%20Ops-blue?style=for-the-badge&logo=react)
 
 **Una aplicación moderna de gestión de proyectos y tareas construida con React, TypeScript y HeroUI**
 

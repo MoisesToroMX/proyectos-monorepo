@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { persistAuthToken, readAuthToken } from '@/store/auth-storage'
 
-const SESSION_KEY = 'inmuebles_auth_session'
+const SESSION_KEY = 'proyectos_auth_session'
 const LEGACY_KEY = 'auth_token'
 const TWO_HOURS_MS = 2 * 60 * 60 * 1000
 

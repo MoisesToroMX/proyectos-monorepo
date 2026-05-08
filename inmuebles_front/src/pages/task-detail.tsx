@@ -35,7 +35,7 @@ interface TaskDraft {
 
 const emptyTaskDraft: TaskDraft = {
   description: '',
-  status: 'pending',
+  status: 'pendiente',
   title: '',
 }
 

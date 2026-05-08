@@ -10,14 +10,14 @@ const task = {
   description: 'ser amigo',
   id: 1,
   project_id: 1,
-  status: 'pending' as const,
+  status: 'pendiente' as const,
   title: 'tarea 1',
   user_id: 3,
 }
 
 describe('TaskCard', () => {
   beforeEach(() => {
-    window.localStorage.setItem('inmuebles-locale', 'es')
+    window.localStorage.setItem('proyectos-locale', 'es')
   })
 
   it('opens from the card instead of a detail button', async () => {

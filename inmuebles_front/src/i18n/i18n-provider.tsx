@@ -12,7 +12,7 @@ import {
 
 import { messages } from '@/i18n/messages'
 
-const STORAGE_KEY = 'inmuebles-locale'
+const STORAGE_KEY = 'proyectos-locale'
 const DEFAULT_LOCALE: Locale = 'es'
 
 interface I18nContextValue {

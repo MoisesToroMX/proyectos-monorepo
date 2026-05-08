@@ -1,6 +1,6 @@
-# 🏠 Inmuebles Monorepo
+# 📋 Proyectos Monorepo
 
-Monorepo profesional para **Inmuebles**, una aplicacion full-stack con:
+Monorepo profesional para **Proyectos**, una aplicacion full-stack con:
 
 - ⚙️ **Backend**: FastAPI, SQLModel, PostgreSQL y JWT.
 - 🎨 **Frontend**: React, TypeScript, Vite, HeroUI y Tailwind.
@@ -16,6 +16,7 @@ Monorepo profesional para **Inmuebles**, una aplicacion full-stack con:
 ├── inmuebles_back/             # API FastAPI
 │   ├── Dockerfile              # Imagen backend multi-stage reducida
 │   ├── docker-compose.yml      # Compose solo backend + db
+│   ├── migrations/             # Migraciones SQL de PostgreSQL
 │   ├── requirements.txt
 │   └── app/
 └── inmuebles_front/            # App React/Vite
@@ -55,9 +56,9 @@ docker compose up --build -d
 
 Este comando construye y levanta:
 
-- 🗄️ `inmuebles_db`: base de datos PostgreSQL.
-- ⚙️ `inmuebles_backend`: API FastAPI.
-- 🌐 `inmuebles_frontend`: frontend React servido con nginx.
+- 🗄️ `proyectos_db`: base de datos PostgreSQL.
+- ⚙️ `proyectos_backend`: API FastAPI.
+- 🌐 `proyectos_frontend`: frontend React servido con nginx.
 
 ---
 
@@ -85,9 +86,9 @@ Estado esperado:
 
 ```text
 NAME                 STATUS
-inmuebles_db         healthy
-inmuebles_backend    healthy
-inmuebles_frontend   healthy
+proyectos_db         healthy
+proyectos_backend    healthy
+proyectos_frontend   healthy
 ```
 
 Ver logs de todos los servicios:
@@ -123,7 +124,7 @@ curl -X POST http://127.0.0.1:8001/auth/register \
   -H 'Content-Type: application/json' \
   -d '{
     "name": "Demo User",
-    "email": "demo@inmuebles.com",
+    "email": "demo@proyectos.com",
     "password": "Password123"
   }'
 ```
@@ -133,7 +134,7 @@ curl -X POST http://127.0.0.1:8001/auth/register \
 ```bash
 curl -X POST http://127.0.0.1:8001/auth/login \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  --data-urlencode 'username=demo@inmuebles.com' \
+  --data-urlencode 'username=demo@proyectos.com' \
   --data-urlencode 'password=Password123'
 ```
 
@@ -148,7 +149,7 @@ Puedes crear un archivo `.env` en la raiz para personalizar puertos y secretos:
 ```bash
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-POSTGRES_DB=inmuebles
+POSTGRES_DB=proyectos
 
 APP_PORT=8001
 FRONTEND_PORT=8080
@@ -162,6 +163,22 @@ ALGORITHM=HS256
 ```
 
 ⚠️ No subas `.env` a Git. El archivo esta ignorado.
+
+---
+
+## 🧬 Migraciones de base de datos
+
+La carpeta `inmuebles_back/migrations/` contiene el esquema versionado de
+PostgreSQL.
+
+Para aplicar la migracion inicial manualmente:
+
+```bash
+psql "$DATABASE_URL" -f inmuebles_back/migrations/001_initial_schema.sql
+```
+
+En Docker, la app tambien inicializa las tablas al arrancar para facilitar la
+revision local.
 
 ---
 
@@ -305,19 +322,19 @@ docker compose up -d
 Ver consumo de imagenes:
 
 ```bash
-docker image ls | grep inmuebles
+docker image ls | grep proyectos
 ```
 
 Entrar al backend:
 
 ```bash
-docker exec -it inmuebles_backend sh
+docker exec -it proyectos_backend sh
 ```
 
 Entrar al frontend:
 
 ```bash
-docker exec -it inmuebles_frontend sh
+docker exec -it proyectos_frontend sh
 ```
 
 ---

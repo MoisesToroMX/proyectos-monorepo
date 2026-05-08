@@ -10,7 +10,7 @@ import {
 import { api } from '@/store/api'
 import { authHeader } from '@/store/auth-headers'
 
-export type TaskStatus = 'pending' | 'in progress' | 'completed'
+export type TaskStatus = 'pendiente' | 'completada'
 
 export interface Task {
   id: number
@@ -154,7 +154,7 @@ export const selectTaskById = (state: RootState, taskId?: number) => {
 
 export const selectCompletedTasksCount = createSelector(
   [selectTasks],
-  tasks => tasks.filter(task => task.status === 'completed').length
+  tasks => tasks.filter(task => task.status === 'completada').length
 )
 
 export const selectTasksByProject = createSelector([selectTasks], tasks => {

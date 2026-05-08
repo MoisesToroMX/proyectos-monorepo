@@ -1,6 +1,6 @@
 export const siteConfig = {
-  name: 'Inmuebles',
-  description: 'Gestión de inmuebles, tareas y seguimiento operativo',
+  name: 'Proyectos',
+  description: 'Gestión de proyectos, tareas y seguimiento operativo',
   navItems: [
     {
       labelKey: 'nav.properties',

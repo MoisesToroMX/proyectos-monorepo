@@ -1,6 +1,6 @@
-# 🚀 Guía de Instalación - Inmuebles Frontend
+# 🚀 Guía de Instalación - Proyectos Frontend
 
-Esta guía te ayudará a configurar y ejecutar el frontend de Inmuebles en tu máquina local.
+Esta guía te ayudará a configurar y ejecutar el frontend de Proyectos en tu máquina local.
 
 ## 📋 Prerrequisitos
 
@@ -240,4 +240,4 @@ Si encuentras problemas:
 
 ---
 
-¡Listo! Tu frontend de Inmuebles debería estar funcionando correctamente. 🎉
+¡Listo! Tu frontend de Proyectos debería estar funcionando correctamente. 🎉

@@ -95,7 +95,7 @@ def test_projects_and_tasks_are_scoped_to_authenticated_user(
   project_response = client.post(
     "/projects/",
     headers=first_headers,
-    json={"name": "Inmueble 1", "description": "Muy bueno"},
+    json={"name": "Proyecto 1", "description": "Muy bueno"},
   )
 
   assert project_response.status_code == 201
@@ -107,14 +107,16 @@ def test_projects_and_tasks_are_scoped_to_authenticated_user(
     json={
       "description": "ser amigo",
       "project_id": project["id"],
+      "status": "pendiente",
       "title": "tarea 1",
     },
   )
 
   assert task_response.status_code == 201
+  assert task_response.json()["status"] == "pendiente"
 
   tasks_response = client.get(
-    f"/tasks/?project_id={project['id']}",
+    f"/tasks/?project_id={project['id']}&status=pendiente",
     headers=first_headers,
   )
 

@@ -9,7 +9,7 @@ const tasks: Task[] = [
     id: 1,
     title: 'Avalúo pendiente',
     description: 'Solicitar documentos de la propiedad',
-    status: 'pending',
+    status: 'pendiente',
     project_id: 1,
     user_id: 1,
     created_at: '2026-05-08T00:00:00.000Z',
@@ -18,7 +18,7 @@ const tasks: Task[] = [
     id: 2,
     title: 'Contrato firmado',
     description: 'Expediente legal completo',
-    status: 'completed',
+    status: 'completada',
     project_id: 1,
     user_id: 1,
     created_at: '2026-05-08T00:00:00.000Z',
@@ -27,7 +27,7 @@ const tasks: Task[] = [
 
 describe('filterTasks', () => {
   it('filters by text and status together', () => {
-    const result = filterTasks(tasks, 'contrato', 'completed')
+    const result = filterTasks(tasks, 'contrato', 'completada')
 
     expect(result).toEqual([tasks[1]])
   })

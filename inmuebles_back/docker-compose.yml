@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:15
-    container_name: inmuebles_db
+    container_name: proyectos_db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-inmuebles}
+      POSTGRES_DB: ${POSTGRES_DB:-proyectos}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
@@ -13,11 +13,11 @@ services:
 
   app:
     build: .
-    container_name: inmuebles_app
+    container_name: proyectos_app
     depends_on:
       - db
     environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/inmuebles
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/proyectos
       SECRET_KEY: ${SECRET_KEY:-changeme}
       ALGORITHM: HS256
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:8080,http://127.0.0.1:8080}

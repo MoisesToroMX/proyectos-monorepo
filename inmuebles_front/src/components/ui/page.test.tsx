@@ -11,17 +11,17 @@ import { renderWithProviders } from '@/test/render'
 
 describe('page UI helpers', () => {
   beforeEach(() => {
-    window.localStorage.setItem('inmuebles-locale', 'es')
+    window.localStorage.setItem('proyectos-locale', 'es')
   })
 
   it('renders scrollable listings with a vertical max height', () => {
     renderWithProviders(
       <ScrollableList>
-        <div>Inmueble 1</div>
+        <div>Proyecto 1</div>
       </ScrollableList>
     )
 
-    const list = screen.getByText('Inmueble 1').parentElement
+    const list = screen.getByText('Proyecto 1').parentElement
 
     expect(list).toHaveStyle({
       maxHeight: 'min(40rem, 58vh)',
@@ -47,10 +47,10 @@ describe('page UI helpers', () => {
   })
 
   it('renders loading skeletons with an accessible status label', () => {
-    renderWithProviders(<LoadingState label="Cargando inmuebles" />)
+    renderWithProviders(<LoadingState label="Cargando proyectos" />)
 
     expect(
-      screen.getByRole('status', { name: 'Cargando inmuebles' })
+      screen.getByRole('status', { name: 'Cargando proyectos' })
     ).toBeInTheDocument()
     expect(screen.getAllByTestId('loading-skeleton-card')).toHaveLength(3)
   })

@@ -9,13 +9,13 @@ const project = {
   created_at: '2026-05-08T00:00:00Z',
   description: 'Muy bueno',
   id: 1,
-  name: 'Inmueble 1',
+  name: 'Proyecto 1',
   user_id: 3,
 }
 
 describe('ProjectCard', () => {
   beforeEach(() => {
-    window.localStorage.setItem('inmuebles-locale', 'es')
+    window.localStorage.setItem('proyectos-locale', 'es')
   })
 
   it('opens by clicking the card and does not render a detail button', async () => {
@@ -30,7 +30,7 @@ describe('ProjectCard', () => {
 
     await user.click(
       screen.getByRole('button', {
-        name: /abrir inmueble: inmueble 1/i,
+        name: /abrir proyecto: proyecto 1/i,
       })
     )
 

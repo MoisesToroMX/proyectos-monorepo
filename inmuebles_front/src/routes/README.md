@@ -1,4 +1,4 @@
-# 🛣️ Estructura de Rutas - Inmuebles
+# 🛣️ Estructura de Rutas - Proyectos
 
 Esta carpeta contiene la organización jerárquica de las rutas de la aplicación.
 

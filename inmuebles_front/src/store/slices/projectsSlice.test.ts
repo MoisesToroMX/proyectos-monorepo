@@ -13,7 +13,7 @@ import projectsReducer, {
 
 const project = {
   id: 1,
-  name: 'Inmueble 1',
+  name: 'Proyecto 1',
   description: 'Departamento en renta',
   user_id: 7,
   created_at: '2026-05-08T09:00:00Z',
@@ -50,7 +50,7 @@ describe('projects slice', () => {
   it('updates and deletes projects through Redux async reducers', () => {
     const updatedProject = {
       ...project,
-      name: 'Inmueble actualizado',
+      name: 'Proyecto actualizado',
     }
     let state = projectsReducer(undefined, setProjects([project]))
 

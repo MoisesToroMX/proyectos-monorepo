@@ -9,14 +9,13 @@ from app.models.user import User
 from sqlmodel import SQLModel, Field, Relationship
 
 class TaskStatus(str, Enum):
-    pending = 'pending'
-    in_progress = 'in progress'
-    completed = 'completed'
+    pendiente = 'pendiente'
+    completada = 'completada'
 
 class TaskBase(SQLModel):
     title: str = Field(default='', index=True)
     description: str = Field(default='', index=True)
-    status: TaskStatus = Field(default=TaskStatus.pending)
+    status: TaskStatus = Field(default=TaskStatus.pendiente)
 
 class Task(TaskBase, table=True):
     __tablename__ = 'tasks'
@@ -32,7 +31,7 @@ class Task(TaskBase, table=True):
 class TaskCreate(SQLModel):
     title: str
     description: str
-    status: TaskStatus = TaskStatus.pending
+    status: TaskStatus = TaskStatus.pendiente
     project_id: int
 
 class TaskUpdate(SQLModel):

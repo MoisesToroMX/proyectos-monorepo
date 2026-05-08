@@ -75,7 +75,7 @@ function renderNavbar() {
 
 describe('Navbar', () => {
   beforeEach(() => {
-    window.localStorage.setItem('inmuebles-locale', 'es')
+    window.localStorage.setItem('proyectos-locale', 'es')
   })
 
   it('renders logout as icon-only with an accessible label', () => {

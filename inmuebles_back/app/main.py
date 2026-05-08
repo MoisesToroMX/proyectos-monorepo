@@ -29,9 +29,9 @@ def get_cors_origins() -> list[str]:
 
 
 app = FastAPI(
-  title='Inmuebles API',
+  title='Proyectos API',
   version='1.0.0',
-  description='API para manejar inmuebles, proyectos y tareas con FastAPI + PostgreSQL',
+  description='API para manejar proyectos y tareas con FastAPI + PostgreSQL',
   lifespan=initialize_database
 )
 

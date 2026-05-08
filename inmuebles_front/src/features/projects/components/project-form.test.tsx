@@ -7,7 +7,7 @@ import { renderWithProviders } from '@/test/render'
 
 describe('ProjectForm', () => {
   beforeEach(() => {
-    window.localStorage.setItem('inmuebles-locale', 'es')
+    window.localStorage.setItem('proyectos-locale', 'es')
   })
 
   it('renders compact create copy and submits valid data', async () => {
@@ -18,7 +18,7 @@ describe('ProjectForm', () => {
       <ProjectForm
         description="Descripción"
         isCreating={false}
-        name="Inmueble 1"
+        name="Proyecto 1"
         onDescriptionChange={vi.fn()}
         onNameChange={vi.fn()}
         onSubmit={onSubmit}
@@ -28,7 +28,7 @@ describe('ProjectForm', () => {
     await user.click(screen.getByRole('button', { name: 'Crear' }))
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
-    expect(screen.queryByText('Crear inmueble')).not.toBeInTheDocument()
+    expect(screen.queryByText('Crear proyecto')).not.toBeInTheDocument()
   })
 
   it('reports input changes to the parent component', async () => {
@@ -46,7 +46,7 @@ describe('ProjectForm', () => {
       />
     )
 
-    await user.type(screen.getByLabelText(/nombre del inmueble/i), 'Casa')
+    await user.type(screen.getByLabelText(/nombre del proyecto/i), 'Casa')
 
     expect(onNameChange).toHaveBeenCalled()
   })

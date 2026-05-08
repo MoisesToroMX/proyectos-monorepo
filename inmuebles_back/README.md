@@ -1,4 +1,4 @@
-# Inmuebles Backend (FastAPI + SQLModel)
+# Proyectos Backend (FastAPI + SQLModel)
 
 API de gestión de usuarios, proyectos y tareas construida con FastAPI, SQLModel y PostgreSQL.
 
@@ -19,7 +19,7 @@ ALGORITHM=HS256
 ```
 
 Notas:
-- `DATABASE_URL` usa el driver `psycopg2` (ya incluido vía `psycopg2`), ejemplo local: `postgresql+psycopg2://postgres:postgres@localhost:5432/inmuebles`.
+- `DATABASE_URL` usa el driver `psycopg2` (ya incluido vía `psycopg2`), ejemplo local: `postgresql+psycopg2://postgres:postgres@localhost:5432/proyectos`.
 - `SECRET_KEY` y `ALGORITHM` se usan para firmar los JWT.
 
 ## Instalación y ejecución
@@ -27,9 +27,9 @@ Notas:
 1. Crear y activar entorno virtual
 
 ```bash
-python -m venv inmuebles
-inmuebles/Scripts/activate  # Windows PowerShell
-# source inmuebles/bin/activate  # Linux/Mac
+python -m venv .venv
+.venv/Scripts/activate  # Windows PowerShell
+# source .venv/bin/activate  # Linux/Mac
 ```
 
 2. Instalar dependencias
@@ -59,73 +59,22 @@ uvicorn app.main:app --reload
   - También funciona con el diálogo "Authorize" de Swagger (OAuth2 Password): `username = email`, `password = contraseña`.
 - Usa el token devuelto como `Authorization: Bearer <token>` para acceder a `/projects` y `/tasks`.
 
-## Migraciones con Alembic
+## Migraciones
 
-Este proyecto crea las tablas automáticamente en arranque (`SQLModel.metadata.create_all`). Para tener control de migraciones en equipo/producción, configura Alembic así:
-
-1. Instalar Alembic
+La migracion inicial esta versionada en:
 
 ```bash
-pip install alembic
+migrations/001_initial_schema.sql
 ```
 
-2. Inicializar Alembic
+Aplicacion manual:
 
 ```bash
-alembic init migrations
+psql "$DATABASE_URL" -f migrations/001_initial_schema.sql
 ```
 
-3. Editar `alembic.ini`
-
-- Cambia `sqlalchemy.url` para leer de `.env` o pon la misma URL de `DATABASE_URL`.
-  - Sugerencia: deja `sqlalchemy.url =` vacío y carga la URL en `env.py`.
-
-4. Editar `migrations/env.py`
-
-Reemplaza el contenido relevante para usar el metadata de SQLModel:
-
-```python
-from sqlmodel import SQLModel
-from app.db import engine
-
-target_metadata = SQLModel.metadata
-
-def run_migrations_offline():
-    context.configure(
-        url=str(engine.url),
-        target_metadata=target_metadata,
-        literal_binds=True,
-        compare_type=True,
-    )
-    with context.begin_transaction():
-        context.run_migrations()
-
-def run_migrations_online():
-    connectable = engine
-    with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
-        with context.begin_transaction():
-            context.run_migrations()
-```
-
-5. Generar una nueva migración
-
-```bash
-alembic revision --autogenerate -m "init schema"
-```
-
-6. Aplicar migraciones
-
-```bash
-alembic upgrade head
-```
-
-7. Crear nuevas migraciones cuando cambien los modelos
-
-```bash
-alembic revision --autogenerate -m "add field X to Y"
-alembic upgrade head
-```
+La app conserva `SQLModel.metadata.create_all` al arrancar para facilitar la
+revision local y el uso con Docker.
 
 ## Ejecución con Docker
 
@@ -148,7 +97,7 @@ La app quedará en `http://localhost:8000` y la documentación en `http://localh
 
 Variables de entorno en contenedor:
 - Por defecto, `docker-compose.yml` usa:
-  - `DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/inmuebles`
+  - `DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/proyectos`
   - `SECRET_KEY` configurable en tiempo de ejecución
 
 Ejemplo de override al levantar:
@@ -181,6 +130,8 @@ app/
     auth.py
     projects.py
     tasks.py
+migrations/
+  001_initial_schema.sql
 ```
 
 ## Notas de desarrollo

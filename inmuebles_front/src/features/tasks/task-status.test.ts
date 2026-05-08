@@ -4,7 +4,7 @@ import { getTaskStatusMeta } from '@/features/tasks/task-status'
 
 describe('getTaskStatusMeta', () => {
   it('returns the label key and color for a task status', () => {
-    expect(getTaskStatusMeta('completed')).toMatchObject({
+    expect(getTaskStatusMeta('completada')).toMatchObject({
       labelKey: 'status.completed',
       color: 'success',
     })

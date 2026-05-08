@@ -1,4 +1,4 @@
-const AUTH_SESSION_KEY = 'inmuebles_auth_session'
+const AUTH_SESSION_KEY = 'proyectos_auth_session'
 const LEGACY_AUTH_TOKEN_KEY = 'auth_token'
 const TOKEN_MAX_AGE_MS = 2 * 60 * 60 * 1000
 
