@@ -1,0 +1,20 @@
+# Entornos locales
+env/
+venv/
+.venv/
+*/Scripts/
+*/bin/
+*/Lib/
+*/lib/
+*/Include/
+*/include/
+*/pyvenv.cfg
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.git
+.gitignore
+.env
+migrations/__pycache__/
