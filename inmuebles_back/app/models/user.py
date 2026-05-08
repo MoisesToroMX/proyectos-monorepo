@@ -1,11 +1,8 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, TYPE_CHECKING, List
 from datetime import datetime, timezone
-from pydantic import EmailStr, BaseModel
+from typing import Optional
 
-if TYPE_CHECKING:
-  from app.models.project import Project
-  from app.models.task import Task
+from pydantic import EmailStr, BaseModel
+from sqlmodel import SQLModel, Field, Relationship
 
 class UserBase(SQLModel):
   name: str = Field(default='', index=True)

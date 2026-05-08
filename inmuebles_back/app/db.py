@@ -1,8 +1,13 @@
-from fastapi import Depends, FastAPI
-from typing import Annotated
-from sqlmodel import SQLModel, Session, create_engine
-from dotenv import load_dotenv
 import os
+from typing import Annotated
+
+from dotenv import load_dotenv
+from fastapi import Depends, FastAPI
+from sqlmodel import SQLModel, Session, create_engine
+
+from app.models import project as project_model  # noqa: F401
+from app.models import task as task_model  # noqa: F401
+from app.models import user as user_model  # noqa: F401
 
 load_dotenv()
 
@@ -18,10 +23,6 @@ def get_session():
     yield session
 
 def initialize_database(app: FastAPI):
-  from app.models import user as user_model  # noqa: F401
-  from app.models import project as project_model  # noqa: F401
-  from app.models import task as task_model  # noqa: F401
-
   SQLModel.metadata.create_all(engine)
   yield
 

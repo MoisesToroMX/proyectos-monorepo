@@ -1,11 +1,8 @@
-from sqlmodel import SQLModel, Field, Relationship
-from typing import Optional, TYPE_CHECKING, List
 from datetime import datetime, timezone
+from typing import Optional
 
 from app.models.user import User
-
-if TYPE_CHECKING:
-    from app.models.task import Task
+from sqlmodel import SQLModel, Field, Relationship
 
 class ProjectBase(SQLModel):
     name: str = Field(default='', index=True)

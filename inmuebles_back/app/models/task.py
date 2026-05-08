@@ -1,14 +1,12 @@
 from __future__ import annotations
-from sqlmodel import SQLModel, Field, Relationship
-from enum import Enum
-from typing import Optional, TYPE_CHECKING
+
 from datetime import datetime, timezone
+from enum import Enum
+from typing import Optional
 
-from app.models.user import User
 from app.models.project import Project
-
-if TYPE_CHECKING:
-    pass
+from app.models.user import User
+from sqlmodel import SQLModel, Field, Relationship
 
 class TaskStatus(str, Enum):
     pending = 'pending'

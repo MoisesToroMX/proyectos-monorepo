@@ -155,7 +155,7 @@ FRONTEND_PORT=8080
 POSTGRES_PORT=5432
 
 FRONTEND_API_URL=http://127.0.0.1:8001
-CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
+CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080,http://localhost:5174,http://127.0.0.1:5174
 
 SECRET_KEY=change-this-long-random-secret
 ALGORITHM=HS256
