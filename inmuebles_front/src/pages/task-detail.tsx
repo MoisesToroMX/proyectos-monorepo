@@ -17,8 +17,13 @@ import {
 import { TaskStatusChip } from '@/features/tasks/components/task-status-chip'
 import { TASK_STATUS_OPTIONS } from '@/features/tasks/task-status'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { deleteTask, fetchTasks, updateTask } from '@/store/slices/tasksSlice'
-import { fetchProjects } from '@/store/slices/projectsSlice'
+import {
+  deleteTask,
+  fetchTasks,
+  selectTaskById,
+  updateTask,
+} from '@/store/slices/tasksSlice'
+import { fetchProjects, selectProjectById } from '@/store/slices/projectsSlice'
 import { getErrorMessage } from '@/utils/errors'
 import { useI18n } from '@/i18n/i18n-provider'
 
@@ -51,21 +56,17 @@ export default function TaskDetailPage() {
   const dispatch = useAppDispatch()
   const { locale, t } = useI18n()
   const navigate = useNavigate()
-  const { items: tasks } = useAppSelector(state => state.tasks)
-  const { items: projects } = useAppSelector(state => state.projects)
+  const currentTask = useAppSelector(state =>
+    selectTaskById(state, Number(taskId))
+  )
+  const currentProject = useAppSelector(state =>
+    selectProjectById(state, Number(projectId))
+  )
 
   const [draft, setDraft] = useState<TaskDraft>(emptyTaskDraft)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const currentTask = useMemo(() => {
-    return tasks.find(task => task.id === Number(taskId))
-  }, [taskId, tasks])
-
-  const currentProject = useMemo(() => {
-    return projects.find(project => project.id === Number(projectId))
-  }, [projectId, projects])
 
   const createdAtLabel = useMemo(() => {
     if (!currentTask) {

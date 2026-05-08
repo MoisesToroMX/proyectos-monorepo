@@ -13,8 +13,15 @@ import {
 } from '@/features/tasks/task-status'
 import { filterTasks } from '@/features/tasks/task-utils'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { createTask, deleteTask, fetchTasks } from '@/store/slices/tasksSlice'
-import { fetchProjects } from '@/store/slices/projectsSlice'
+import {
+  createTask,
+  deleteTask,
+  fetchTasks,
+  selectCompletedTasksCount,
+  selectTasks,
+  selectTasksStatus,
+} from '@/store/slices/tasksSlice'
+import { fetchProjects, selectProjectById } from '@/store/slices/projectsSlice'
 import {
   BackButton,
   ClearFiltersButton,
@@ -62,18 +69,18 @@ export default function TasksPage() {
   const dispatch = useAppDispatch()
   const { t } = useI18n()
   const navigate = useNavigate()
-  const { items: tasks, status } = useAppSelector(state => state.tasks)
-  const { items: projects } = useAppSelector(state => state.projects)
+  const tasks = useAppSelector(selectTasks)
+  const status = useAppSelector(selectTasksStatus)
+  const currentProject = useAppSelector(state =>
+    selectProjectById(state, Number(projectId))
+  )
+  const completedTasks = useAppSelector(selectCompletedTasksCount)
   const [pageState, setPageState] = useReducer(
     mergeTasksPageState,
     initialTasksPageState
   )
   const { creating, description, error, searchTerm, statusFilter, title } =
     pageState
-
-  const currentProject = useMemo(() => {
-    return projects.find(project => project.id === Number(projectId))
-  }, [projectId, projects])
 
   useEffect(() => {
     dispatch(fetchProjects())
@@ -122,10 +129,6 @@ export default function TasksPage() {
   const filteredTasks = useMemo(() => {
     return filterTasks(tasks, searchTerm, statusFilter)
   }, [tasks, searchTerm, statusFilter])
-
-  const completedTasks = useMemo(() => {
-    return tasks.filter(task => task.status === 'completed').length
-  }, [tasks])
 
   return (
     <Page className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8">
@@ -216,7 +219,7 @@ export default function TasksPage() {
         />
       )}
 
-      <ScrollableList className="grid gap-4 lg:grid-cols-2">
+      <ScrollableList>
         {filteredTasks.map(task => (
           <TaskCard
             key={task.id}

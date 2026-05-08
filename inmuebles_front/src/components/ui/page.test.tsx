@@ -23,6 +23,12 @@ describe('page UI helpers', () => {
       maxHeight: 'min(40rem, 58vh)',
       overflowY: 'auto',
     })
+    expect(list).toHaveClass(
+      'grid',
+      'gap-4',
+      'md:grid-cols-2',
+      'xl:grid-cols-3'
+    )
   })
 
   it('uses an icon-only red clear filter action', async () => {

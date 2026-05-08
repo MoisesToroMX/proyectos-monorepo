@@ -110,22 +110,23 @@ const authSlice = createSlice({
   },
 })
 
-export const { logout, setToken, setUser } = authSlice.actions
+const { logout: baseLogout, setUser } = authSlice.actions
 
-const baseLogout = logout
-const baseSetToken = setToken
+export { setUser }
+
+const selectAuth = (state: RootState) => state.auth
+
+export const selectAuthToken = (state: RootState) => {
+  return selectAuth(state).token
+}
+
+export const selectCurrentUser = (state: RootState) => {
+  return selectAuth(state).user
+}
 
 export const logoutAndClear = (): AppThunk => dispatch => {
   persistAuthToken(null)
   setAuthToken(null)
   dispatch(baseLogout())
 }
-
-export const setTokenAndPersist =
-  (token: string | null): AppThunk =>
-  dispatch => {
-    persistAuthToken(token)
-    setAuthToken(token)
-    dispatch(baseSetToken(token))
-  }
 export default authSlice.reducer

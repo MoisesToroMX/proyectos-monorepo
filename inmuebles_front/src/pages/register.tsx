@@ -7,7 +7,11 @@ import { Input } from '@heroui/input'
 
 import { AuthPanel } from '@/components/auth/auth-panel'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { registerUser } from '@/store/slices/authSlice'
+import {
+  registerUser,
+  selectAuthToken,
+  selectCurrentUser,
+} from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/errors'
 import { useI18n } from '@/i18n/i18n-provider'
 
@@ -40,7 +44,8 @@ export default function RegisterPage() {
   const dispatch = useAppDispatch()
   const { t } = useI18n()
   const navigate = useNavigate()
-  const { token, user } = useAppSelector(state => state.auth)
+  const token = useAppSelector(selectAuthToken)
+  const user = useAppSelector(selectCurrentUser)
   const [formState, setFormState] = useReducer(
     mergeRegisterState,
     initialRegisterState

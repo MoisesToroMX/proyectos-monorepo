@@ -3,6 +3,7 @@ import type { RootState } from '@/store'
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { api } from '@/store/api'
+import { authHeader } from '@/store/auth-headers'
 
 export interface Project {
   id: number
@@ -22,12 +23,6 @@ const initialState: ProjectsState = {
   items: [],
   status: 'idle',
   error: null,
-}
-
-function authHeader(getState: () => RootState) {
-  const token = getState().auth.token ?? undefined
-
-  return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 export const fetchProjects = createAsyncThunk<
@@ -125,4 +120,21 @@ const projectsSlice = createSlice({
 })
 
 export const { setProjects } = projectsSlice.actions
+
+const selectProjectsState = (state: RootState) => state.projects
+
+export const selectProjects = (state: RootState) => {
+  return selectProjectsState(state).items
+}
+
+export const selectProjectsStatus = (state: RootState) => {
+  return selectProjectsState(state).status
+}
+
+export const selectProjectById = (state: RootState, projectId?: number) => {
+  if (!projectId) return undefined
+
+  return selectProjects(state).find(project => project.id === projectId)
+}
+
 export default projectsSlice.reducer

@@ -2,7 +2,12 @@ import { useEffect } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 
 import { useAppSelector, useAppDispatch } from '@/store/hooks'
-import { setUser, logoutAndClear } from '@/store/slices/authSlice'
+import {
+  logoutAndClear,
+  selectAuthToken,
+  selectCurrentUser,
+  setUser,
+} from '@/store/slices/authSlice'
 import { api } from '@/store/api'
 import DefaultLayout from '@/layouts/default'
 import { LoadingState, Page } from '@/components/ui/page'
@@ -13,7 +18,8 @@ interface AppRouterProps {
 }
 
 export default function AppRouter({ children }: AppRouterProps) {
-  const { token, user } = useAppSelector(state => state.auth)
+  const token = useAppSelector(selectAuthToken)
+  const user = useAppSelector(selectCurrentUser)
   const dispatch = useAppDispatch()
   const { t } = useI18n()
   const location = useLocation()

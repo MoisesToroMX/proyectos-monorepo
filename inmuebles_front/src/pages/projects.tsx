@@ -7,13 +7,20 @@ import { Input } from '@heroui/input'
 
 import { ProjectCard } from '@/features/projects/components/project-card'
 import { ProjectForm } from '@/features/projects/components/project-form'
-import {
-  buildTasksByProject,
-  filterProjects,
-} from '@/features/projects/project-utils'
+import { filterProjects } from '@/features/projects/project-utils'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { createProject, fetchProjects } from '@/store/slices/projectsSlice'
-import { fetchTasks } from '@/store/slices/tasksSlice'
+import {
+  createProject,
+  fetchProjects,
+  selectProjects,
+  selectProjectsStatus,
+} from '@/store/slices/projectsSlice'
+import {
+  fetchTasks,
+  selectCompletedTasksCount,
+  selectTasks,
+  selectTasksByProject,
+} from '@/store/slices/tasksSlice'
 import {
   ClearFiltersButton,
   EmptyState,
@@ -55,10 +62,11 @@ export default function ProjectsPage() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const { items: projects, status: projStatus } = useAppSelector(
-    s => s.projects
-  )
-  const { items: tasks } = useAppSelector(s => s.tasks)
+  const projects = useAppSelector(selectProjects)
+  const projStatus = useAppSelector(selectProjectsStatus)
+  const tasks = useAppSelector(selectTasks)
+  const tasksByProject = useAppSelector(selectTasksByProject)
+  const completedTasks = useAppSelector(selectCompletedTasksCount)
   const [pageState, setPageState] = useReducer(
     mergeProjectsPageState,
     initialProjectsPageState
@@ -70,17 +78,9 @@ export default function ProjectsPage() {
     dispatch(fetchTasks())
   }, [dispatch])
 
-  const tasksByProject = useMemo(() => {
-    return buildTasksByProject(tasks)
-  }, [tasks])
-
   const filteredProjects = useMemo(() => {
     return filterProjects(projects, searchTerm)
   }, [projects, searchTerm])
-
-  const completedTasks = useMemo(() => {
-    return tasks.filter(task => task.status === 'completed').length
-  }, [tasks])
 
   const onCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -177,7 +177,7 @@ export default function ProjectsPage() {
         />
       )}
 
-      <ScrollableList className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <ScrollableList>
         {filteredProjects.map(project => (
           <ProjectCard
             key={project.id}

@@ -7,7 +7,11 @@ import { Input } from '@heroui/input'
 
 import { AuthPanel } from '@/components/auth/auth-panel'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { loginUser } from '@/store/slices/authSlice'
+import {
+  loginUser,
+  selectAuthToken,
+  selectCurrentUser,
+} from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/errors'
 import { useI18n } from '@/i18n/i18n-provider'
 
@@ -15,7 +19,8 @@ export default function LoginPage() {
   const dispatch = useAppDispatch()
   const { t } = useI18n()
   const navigate = useNavigate()
-  const { token, user } = useAppSelector(state => state.auth)
+  const token = useAppSelector(selectAuthToken)
+  const user = useAppSelector(selectCurrentUser)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)

@@ -13,7 +13,11 @@ import { ChevronRight, LogOut } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import { logoutAndClear } from '@/store/slices/authSlice'
+import {
+  logoutAndClear,
+  selectAuthToken,
+  selectCurrentUser,
+} from '@/store/slices/authSlice'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { BrandMark } from '@/components/ui/brand'
 import { LanguageSwitch } from '@/components/language-switch'
@@ -35,7 +39,8 @@ export const Navbar = () => {
   const userId = pathMatch?.[1]
   const projectId = pathMatch?.[2]
   const taskId = pathMatch?.[3]
-  const { token, user } = useAppSelector(state => state.auth)
+  const token = useAppSelector(selectAuthToken)
+  const user = useAppSelector(selectCurrentUser)
   const resolvedUserId = userId ?? (user ? String(user.id) : undefined)
   const projectsHref = resolvedUserId
     ? `/user/${resolvedUserId}/projects`

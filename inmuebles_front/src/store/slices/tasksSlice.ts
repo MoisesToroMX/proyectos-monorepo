@@ -1,8 +1,14 @@
 import type { RootState } from '@/store'
 
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import {
+  createAsyncThunk,
+  createSelector,
+  createSlice,
+  PayloadAction,
+} from '@reduxjs/toolkit'
 
 import { api } from '@/store/api'
+import { authHeader } from '@/store/auth-headers'
 
 export type TaskStatus = 'pending' | 'in progress' | 'completed'
 
@@ -26,12 +32,6 @@ const initialState: TasksState = {
   items: [],
   status: 'idle',
   error: null,
-}
-
-function authHeader(getState: () => RootState) {
-  const token = getState().auth.token ?? undefined
-
-  return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 export const fetchTasks = createAsyncThunk<
@@ -135,4 +135,38 @@ const tasksSlice = createSlice({
 })
 
 export const { setTasks } = tasksSlice.actions
+
+const selectTasksState = (state: RootState) => state.tasks
+
+export const selectTasks = (state: RootState) => {
+  return selectTasksState(state).items
+}
+
+export const selectTasksStatus = (state: RootState) => {
+  return selectTasksState(state).status
+}
+
+export const selectTaskById = (state: RootState, taskId?: number) => {
+  if (!taskId) return undefined
+
+  return selectTasks(state).find(task => task.id === taskId)
+}
+
+export const selectCompletedTasksCount = createSelector(
+  [selectTasks],
+  tasks => tasks.filter(task => task.status === 'completed').length
+)
+
+export const selectTasksByProject = createSelector([selectTasks], tasks => {
+  return tasks.reduce<Record<number, Task[]>>((grouped, task) => {
+    if (!grouped[task.project_id]) {
+      grouped[task.project_id] = []
+    }
+
+    grouped[task.project_id].push(task)
+
+    return grouped
+  }, {})
+})
+
 export default tasksSlice.reducer

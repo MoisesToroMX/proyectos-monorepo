@@ -34,6 +34,8 @@ interface ScrollableListProps {
   className?: string
 }
 
+const listingGridClassName = 'grid gap-4 md:grid-cols-2 xl:grid-cols-3'
+
 export function Page({ children, className }: PageProps) {
   return (
     <section className={className ?? 'mx-auto w-full max-w-7xl px-4 py-8'}>
@@ -153,7 +155,7 @@ export function BackButton({
 export function ScrollableList({ children, className }: ScrollableListProps) {
   return (
     <div
-      className={className}
+      className={className ?? listingGridClassName}
       style={{
         maxHeight: 'min(40rem, 58vh)',
         overflowY: 'auto',
