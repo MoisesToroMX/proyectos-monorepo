@@ -35,6 +35,15 @@ interface ScrollableListProps {
 }
 
 const listingGridClassName = 'grid gap-4 md:grid-cols-2 xl:grid-cols-3'
+const loadingSkeletonItems = [0, 1, 2]
+
+function SkeletonLine({ className }: { className: string }) {
+  return (
+    <div
+      className={`animate-pulse rounded-md bg-default-200/80 dark:bg-default-100/15 ${className}`}
+    />
+  )
+}
 
 export function Page({ children, className }: PageProps) {
   return (
@@ -106,13 +115,32 @@ export function EmptyState({ action, description, title }: EmptyStateProps) {
 
 export function LoadingState({ label }: { label?: string }) {
   const { t } = useI18n()
+  const loadingLabel = label ?? t('app.loading')
 
   return (
-    <Card shadow="none">
-      <CardBody className="py-10 text-center text-sm text-default-500">
-        {label ?? t('app.loading')}
-      </CardBody>
-    </Card>
+    <section aria-label={loadingLabel} className="space-y-4" role="status">
+      <span className="sr-only">{loadingLabel}</span>
+      <div aria-hidden="true" className={listingGridClassName}>
+        {loadingSkeletonItems.map(item => (
+          <Card
+            key={item}
+            className="border border-default-200"
+            data-testid="loading-skeleton-card"
+            shadow="none"
+          >
+            <CardBody className="gap-4 p-5">
+              <SkeletonLine className="h-5 w-2/3" />
+              <SkeletonLine className="h-4 w-full" />
+              <SkeletonLine className="h-4 w-5/6" />
+              <div className="flex items-center justify-between pt-3">
+                <SkeletonLine className="h-6 w-20" />
+                <SkeletonLine className="h-8 w-10" />
+              </div>
+            </CardBody>
+          </Card>
+        ))}
+      </div>
+    </section>
   )
 }
 

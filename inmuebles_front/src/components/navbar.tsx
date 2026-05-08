@@ -127,14 +127,15 @@ export const Navbar = () => {
         <NavbarItem className="hidden md:flex">
           {token ? (
             <Button
-              className="h-9 px-4 text-sm font-medium"
+              isIconOnly
+              aria-label={t('nav.logout')}
+              className="h-9 min-w-9 px-0"
               color="danger"
               size="sm"
-              startContent={<LogOut aria-hidden="true" size={16} />}
               variant="solid"
               onPress={handleLogout}
             >
-              {t('nav.logout')}
+              <LogOut aria-hidden="true" size={16} />
             </Button>
           ) : (
             <Button
@@ -168,14 +169,15 @@ export const Navbar = () => {
           {token && (
             <NavbarMenuItem>
               <Button
-                className="w-full justify-start"
+                isIconOnly
+                aria-label={t('nav.logout')}
+                className="h-9 min-w-9 px-0"
                 color="danger"
                 size="sm"
-                startContent={<LogOut aria-hidden="true" size={16} />}
                 variant="solid"
                 onPress={handleLogout}
               >
-                {t('nav.logout')}
+                <LogOut aria-hidden="true" size={16} />
               </Button>
             </NavbarMenuItem>
           )}

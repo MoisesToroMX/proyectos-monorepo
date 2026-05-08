@@ -2,7 +2,11 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { ClearFiltersButton, ScrollableList } from '@/components/ui/page'
+import {
+  ClearFiltersButton,
+  LoadingState,
+  ScrollableList,
+} from '@/components/ui/page'
 import { renderWithProviders } from '@/test/render'
 
 describe('page UI helpers', () => {
@@ -40,5 +44,14 @@ describe('page UI helpers', () => {
     await user.click(screen.getByRole('button', { name: 'Limpiar filtros' }))
 
     expect(onPress).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders loading skeletons with an accessible status label', () => {
+    renderWithProviders(<LoadingState label="Cargando inmuebles" />)
+
+    expect(
+      screen.getByRole('status', { name: 'Cargando inmuebles' })
+    ).toBeInTheDocument()
+    expect(screen.getAllByTestId('loading-skeleton-card')).toHaveLength(3)
   })
 })
