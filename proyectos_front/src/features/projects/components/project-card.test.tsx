@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -23,7 +23,12 @@ describe('ProjectCard', () => {
     const onOpen = vi.fn()
 
     renderWithProviders(
-      <ProjectCard project={project} taskCount={1} onOpen={onOpen} />
+      <ProjectCard
+        project={project}
+        taskCount={1}
+        onDelete={vi.fn()}
+        onOpen={onOpen}
+      />
     )
 
     expect(screen.queryByText('Ver operación')).not.toBeInTheDocument()
@@ -35,5 +40,35 @@ describe('ProjectCard', () => {
     )
 
     expect(onOpen).toHaveBeenCalledTimes(1)
+  })
+
+  it('deletes with a modal without opening the project', async () => {
+    const user = userEvent.setup()
+    const onDelete = vi.fn()
+    const onOpen = vi.fn()
+    const confirmSpy = vi.spyOn(window, 'confirm')
+
+    renderWithProviders(
+      <ProjectCard
+        project={project}
+        taskCount={1}
+        onDelete={onDelete}
+        onOpen={onOpen}
+      />
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Eliminar' }))
+
+    const dialog = screen.getByRole('dialog')
+
+    expect(confirmSpy).not.toHaveBeenCalled()
+    expect(
+      within(dialog).getByText('¿Deseas eliminar el proyecto Proyecto 1?')
+    ).toBeVisible()
+
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
+
+    expect(onDelete).toHaveBeenCalledTimes(1)
+    expect(onOpen).not.toHaveBeenCalled()
   })
 })

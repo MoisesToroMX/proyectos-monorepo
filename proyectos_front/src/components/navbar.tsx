@@ -22,6 +22,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { BrandMark } from '@/components/ui/brand'
 import { LanguageSwitch } from '@/components/language-switch'
 import { useI18n } from '@/i18n/i18n-provider'
+import { selectTaskById } from '@/store/slices/tasksSlice'
 
 interface RouteTrailItem {
   href?: string
@@ -41,6 +42,9 @@ export const Navbar = () => {
   const taskId = pathMatch?.[3]
   const token = useAppSelector(selectAuthToken)
   const user = useAppSelector(selectCurrentUser)
+  const currentTask = useAppSelector(state =>
+    selectTaskById(state, Number(taskId))
+  )
   const resolvedUserId = userId ?? (user ? String(user.id) : undefined)
   const projectsHref = resolvedUserId
     ? `/user/${resolvedUserId}/projects`
@@ -58,7 +62,7 @@ export const Navbar = () => {
   }
 
   if (taskId) {
-    routeItems.push({ label: t('route.task') })
+    routeItems.push({ label: currentTask?.title ?? t('route.task') })
   }
 
   const handleLogout = () => {

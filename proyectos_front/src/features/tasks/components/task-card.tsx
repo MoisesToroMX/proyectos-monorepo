@@ -50,7 +50,7 @@ export function TaskCard({ onDelete, onOpen, task }: TaskCardProps) {
         <div className="flex justify-end">
           <ConfirmDeleteButton
             ariaLabel={t('common.delete')}
-            confirmMessage={t('tasks.deleteConfirm')}
+            modalTitle={t('tasks.deleteTitle').replace('{name}', task.title)}
             onConfirm={onDelete}
           />
         </div>

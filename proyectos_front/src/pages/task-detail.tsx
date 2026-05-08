@@ -6,8 +6,10 @@ import { Button } from '@heroui/button'
 import { Card, CardBody, CardHeader } from '@heroui/card'
 import { Input, Textarea } from '@heroui/input'
 import { Select, SelectItem } from '@heroui/select'
+import { Pencil } from 'lucide-react'
 
 import { ConfirmDeleteButton } from '@/components/ui/confirm-delete-button'
+import { IconTooltip } from '@/components/ui/icon-tooltip'
 import {
   BackButton,
   LoadingState,
@@ -187,7 +189,35 @@ export default function TaskDetailPage() {
                 </h2>
               )}
             </div>
-            <TaskStatusChip status={currentTask.status} />
+            <div className="flex items-center gap-2">
+              <TaskStatusChip status={currentTask.status} />
+              {!isEditing && (
+                <>
+                  <IconTooltip label={t('taskDetail.edit')}>
+                    <Button
+                      isIconOnly
+                      aria-label={t('taskDetail.edit')}
+                      className="h-8 min-w-8"
+                      color="primary"
+                      size="sm"
+                      variant="solid"
+                      onPress={onStartEditing}
+                    >
+                      <Pencil aria-hidden="true" size={16} />
+                    </Button>
+                  </IconTooltip>
+                  <ConfirmDeleteButton
+                    ariaLabel={t('common.delete')}
+                    className="h-8 min-w-8"
+                    modalTitle={t('tasks.deleteTitle').replace(
+                      '{name}',
+                      currentTask.title
+                    )}
+                    onConfirm={onDelete}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardBody className="gap-6">
@@ -255,40 +285,22 @@ export default function TaskDetailPage() {
             </div>
           </dl>
 
-          <div className="flex flex-wrap justify-end gap-2">
-            {isEditing ? (
-              <>
-                <Button
-                  color="primary"
-                  isLoading={saving}
-                  size="sm"
-                  variant="solid"
-                  onPress={onSave}
-                >
-                  {t('taskDetail.save')}
-                </Button>
-                <Button size="sm" variant="flat" onPress={onCancel}>
-                  {t('taskDetail.cancel')}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  color="primary"
-                  size="sm"
-                  variant="solid"
-                  onPress={onStartEditing}
-                >
-                  {t('taskDetail.edit')}
-                </Button>
-                <ConfirmDeleteButton
-                  ariaLabel={t('taskDetail.delete')}
-                  confirmMessage={t('tasks.deleteConfirm')}
-                  onConfirm={onDelete}
-                />
-              </>
-            )}
-          </div>
+          {isEditing && (
+            <div className="flex flex-wrap justify-end gap-2">
+              <Button
+                color="primary"
+                isLoading={saving}
+                size="sm"
+                variant="solid"
+                onPress={onSave}
+              >
+                {t('taskDetail.save')}
+              </Button>
+              <Button size="sm" variant="flat" onPress={onCancel}>
+                {t('taskDetail.cancel')}
+              </Button>
+            </div>
+          )}
         </CardBody>
       </Card>
     </Page>

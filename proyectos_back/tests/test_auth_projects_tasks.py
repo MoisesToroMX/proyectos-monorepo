@@ -143,3 +143,39 @@ def test_projects_and_tasks_are_scoped_to_authenticated_user(
 
   assert blocked_project.status_code == 404
   assert blocked_task.status_code == 403
+
+
+def test_delete_project_removes_owned_tasks(client: TestClient) -> None:
+  register_user(client)
+  headers = auth_headers(client)
+  project_response = client.post(
+    "/projects/",
+    headers=headers,
+    json={"name": "Proyecto con tareas", "description": "Muy bueno"},
+  )
+  project = project_response.json()
+  task_response = client.post(
+    "/tasks/",
+    headers=headers,
+    json={
+      "description": "ser amigo",
+      "project_id": project["id"],
+      "status": "pendiente",
+      "title": "tarea 1",
+    },
+  )
+
+  assert task_response.status_code == 201
+
+  delete_response = client.delete(
+    f"/projects/{project['id']}",
+    headers=headers,
+  )
+  tasks_response = client.get(
+    f"/tasks/?project_id={project['id']}",
+    headers=headers,
+  )
+
+  assert delete_response.status_code == 204
+  assert tasks_response.status_code == 200
+  assert tasks_response.json() == []

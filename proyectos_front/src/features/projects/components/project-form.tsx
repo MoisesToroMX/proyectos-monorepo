@@ -47,7 +47,7 @@ export function ProjectForm({
             onChange={event => onDescriptionChange(event.target.value)}
           />
           <Button
-            className="h-10 px-5"
+            className="h-12 min-h-12 px-5"
             color="primary"
             isLoading={isCreating}
             size="sm"

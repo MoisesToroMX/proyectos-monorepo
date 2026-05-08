@@ -29,6 +29,10 @@ describe('ProjectForm', () => {
 
     expect(onSubmit).toHaveBeenCalledTimes(1)
     expect(screen.queryByText('Crear proyecto')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Crear' })).toHaveClass(
+      'h-12',
+      'min-h-12'
+    )
   })
 
   it('reports input changes to the parent component', async () => {

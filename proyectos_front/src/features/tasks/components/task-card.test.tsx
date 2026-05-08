@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -43,14 +43,22 @@ describe('TaskCard', () => {
     const user = userEvent.setup()
     const onDelete = vi.fn()
     const onOpen = vi.fn()
-
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const confirmSpy = vi.spyOn(window, 'confirm')
 
     renderWithProviders(
       <TaskCard task={task} onDelete={onDelete} onOpen={onOpen} />
     )
 
     await user.click(screen.getByRole('button', { name: 'Eliminar' }))
+
+    const dialog = screen.getByRole('dialog')
+
+    expect(confirmSpy).not.toHaveBeenCalled()
+    expect(
+      within(dialog).getByText('¿Deseas eliminar la tarea tarea 1?')
+    ).toBeVisible()
+
+    await user.click(within(dialog).getByRole('button', { name: 'Eliminar' }))
 
     expect(onDelete).toHaveBeenCalledTimes(1)
     expect(onOpen).not.toHaveBeenCalled()

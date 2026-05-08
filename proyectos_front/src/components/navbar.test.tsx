@@ -12,6 +12,10 @@ import authReducer from '@/store/slices/authSlice'
 import projectsReducer from '@/store/slices/projectsSlice'
 import tasksReducer from '@/store/slices/tasksSlice'
 
+interface RenderNavbarOptions {
+  initialEntry?: string
+}
+
 function TestHeroUIProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
 
@@ -22,7 +26,9 @@ function TestHeroUIProvider({ children }: { children: ReactNode }) {
   )
 }
 
-function renderNavbar() {
+function renderNavbar({
+  initialEntry = '/user/3/projects',
+}: RenderNavbarOptions = {}) {
   const store = configureStore({
     preloadedState: {
       auth: {
@@ -43,7 +49,17 @@ function renderNavbar() {
       },
       tasks: {
         error: null,
-        items: [],
+        items: [
+          {
+            created_at: '2026-05-08T09:30:00Z',
+            description: 'Hay que jugar para ganar',
+            id: 7,
+            project_id: 12,
+            status: 'pendiente' as const,
+            title: 'Tarea 3 del PY 1',
+            user_id: 3,
+          },
+        ],
         status: 'idle' as const,
       },
     },
@@ -60,7 +76,7 @@ function renderNavbar() {
         v7_relativeSplatPath: true,
         v7_startTransition: true,
       }}
-      initialEntries={['/user/3/projects']}
+      initialEntries={[initialEntry]}
     >
       <ReduxProvider store={store}>
         <I18nProvider>
@@ -90,5 +106,19 @@ describe('Navbar', () => {
     logoutButtons.forEach(button => {
       expect(button).not.toHaveTextContent('Cerrar sesión')
     })
+  })
+
+  it('shows capitalized tasks and the task title in detail breadcrumb', () => {
+    renderNavbar({
+      initialEntry: '/user/3/projects/12/tasks/7',
+    })
+
+    const route = screen.getByRole('navigation', { name: 'Ruta' })
+
+    expect(route).toHaveTextContent('Proyectos')
+    expect(route).toHaveTextContent('Tareas')
+    expect(route).toHaveTextContent('Tarea 3 del PY 1')
+    expect(route).not.toHaveTextContent('tareas')
+    expect(route).not.toHaveTextContent('tarea')
   })
 })

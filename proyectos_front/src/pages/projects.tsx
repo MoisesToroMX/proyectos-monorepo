@@ -11,6 +11,7 @@ import { filterProjects } from '@/features/projects/project-utils'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import {
   createProject,
+  deleteProject,
   fetchProjects,
   selectProjects,
   selectProjectsStatus,
@@ -103,6 +104,19 @@ export default function ProjectsPage() {
     }
   }
 
+  const onDeleteProject = async (projectId: number) => {
+    setPageState({ error: null })
+
+    try {
+      await dispatch(deleteProject({ project_id: projectId })).unwrap()
+      await dispatch(fetchTasks()).unwrap()
+    } catch (error) {
+      setPageState({
+        error: getErrorMessage(error, t('projects.deleteError')),
+      })
+    }
+  }
+
   return (
     <Page className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8">
       <PageHeader
@@ -183,6 +197,7 @@ export default function ProjectsPage() {
             key={project.id}
             project={project}
             taskCount={tasksByProject[project.id]?.length ?? 0}
+            onDelete={() => onDeleteProject(project.id)}
             onOpen={() => navigate(`/user/${userId}/projects/${project.id}`)}
           />
         ))}

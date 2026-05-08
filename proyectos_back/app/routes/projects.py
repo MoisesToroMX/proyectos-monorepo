@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import select, Session
 from app.db import get_session
 from app.models.project import Project, ProjectCreate, ProjectUpdate
+from app.models.task import Task
 from app.models.user import User
 from app.credentials.dependencies import get_current_user
 
@@ -70,6 +71,16 @@ async def delete_project(
   project = session.get(Project, project_id)
   if not project or project.user_id != current_user.id:
     raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+  tasks = session.exec(
+    select(Task).where(
+      Task.project_id == project.id,
+      Task.user_id == current_user.id,
+    )
+  ).all()
+
+  for task in tasks:
+    session.delete(task)
 
   session.delete(project)
   session.commit()
