@@ -3,17 +3,17 @@ export const siteConfig = {
   description: 'Gestión de inmuebles, tareas y seguimiento operativo',
   navItems: [
     {
-      label: 'Inmuebles',
+      labelKey: 'nav.properties',
       href: '/projects',
     },
   ],
   navMenuItems: [
     {
-      label: 'Inmuebles',
+      labelKey: 'nav.properties',
       href: '/projects',
     },
   ],
   links: {
     sponsor: 'https://github.com/sponsors/nextui-org',
   },
-}
+} as const

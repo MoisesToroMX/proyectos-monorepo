@@ -4,7 +4,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import auth, projects, tasks
 from app.db import initialize_database
-from app.routes.middlewares.auth_context import AuthMiddleware
 
 
 def get_cors_origins() -> list[str]:
@@ -43,8 +42,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.add_middleware(AuthMiddleware)
 
 app.include_router(auth.router)
 app.include_router(projects.router)

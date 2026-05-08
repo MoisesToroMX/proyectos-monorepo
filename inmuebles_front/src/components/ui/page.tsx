@@ -2,6 +2,9 @@ import type { ReactNode } from 'react'
 
 import { Card, CardBody } from '@heroui/card'
 import { Button } from '@heroui/button'
+import { ArrowLeft, Trash2 } from 'lucide-react'
+
+import { useI18n } from '@/i18n/i18n-provider'
 
 interface PageProps {
   children: ReactNode
@@ -26,6 +29,11 @@ interface MetricCardProps {
   value: ReactNode
 }
 
+interface ScrollableListProps {
+  children: ReactNode
+  className?: string
+}
+
 export function Page({ children, className }: PageProps) {
   return (
     <section className={className ?? 'mx-auto w-full max-w-7xl px-4 py-8'}>
@@ -41,7 +49,7 @@ export function PageHeader({
   title,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="max-w-3xl">
         {eyebrow && (
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
@@ -57,7 +65,9 @@ export function PageHeader({
           </p>
         )}
       </div>
-      {actions && <div className="flex shrink-0 gap-2">{actions}</div>}
+      {actions && (
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+      )}
     </div>
   )
 }
@@ -67,7 +77,7 @@ export function Toolbar({ children, className }: PageProps) {
     <div
       className={
         className ??
-        'flex flex-col gap-3 rounded-lg border border-default-200 bg-content1 p-3 shadow-sm sm:flex-row sm:items-center'
+        'flex flex-col gap-2 rounded-lg border border-default-200 bg-content1 p-2 sm:flex-row sm:items-center'
       }
     >
       {children}
@@ -92,11 +102,13 @@ export function EmptyState({ action, description, title }: EmptyStateProps) {
   )
 }
 
-export function LoadingState({ label = 'Cargando...' }: { label?: string }) {
+export function LoadingState({ label }: { label?: string }) {
+  const { t } = useI18n()
+
   return (
     <Card shadow="none">
       <CardBody className="py-10 text-center text-sm text-default-500">
-        {label}
+        {label ?? t('app.loading')}
       </CardBody>
     </Card>
   )
@@ -104,8 +116,8 @@ export function LoadingState({ label = 'Cargando...' }: { label?: string }) {
 
 export function MetricCard({ label, value }: MetricCardProps) {
   return (
-    <Card className="border border-default-200" shadow="sm">
-      <CardBody className="gap-1 p-4">
+    <Card className="border border-default-200" shadow="none">
+      <CardBody className="gap-1 p-3">
         <p className="text-xs font-medium uppercase tracking-[0.14em] text-default-400">
           {label}
         </p>
@@ -116,15 +128,56 @@ export function MetricCard({ label, value }: MetricCardProps) {
 }
 
 export function BackButton({
-  children,
+  children: _children,
   onPress,
 }: {
   children: ReactNode
   onPress: () => void
 }) {
+  const { t } = useI18n()
+
   return (
-    <Button color="default" variant="flat" onPress={onPress}>
+    <Button
+      isIconOnly
+      aria-label={t('common.goBack')}
+      color="default"
+      size="sm"
+      variant="flat"
+      onPress={onPress}
+    >
+      <ArrowLeft aria-hidden="true" size={16} />
+    </Button>
+  )
+}
+
+export function ScrollableList({ children, className }: ScrollableListProps) {
+  return (
+    <div
+      className={className}
+      style={{
+        maxHeight: 'min(40rem, 58vh)',
+        overflowY: 'auto',
+        paddingRight: '0.25rem',
+      }}
+    >
       {children}
+    </div>
+  )
+}
+
+export function ClearFiltersButton({ onPress }: { onPress: () => void }) {
+  const { t } = useI18n()
+
+  return (
+    <Button
+      isIconOnly
+      aria-label={t('common.clearFilters')}
+      color="danger"
+      size="sm"
+      variant="solid"
+      onPress={onPress}
+    >
+      <Trash2 aria-hidden="true" size={16} />
     </Button>
   )
 }

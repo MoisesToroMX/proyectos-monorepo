@@ -1,12 +1,15 @@
-import { FC, useState, useEffect } from 'react'
+import type { FC } from 'react'
+import type { SwitchProps } from '@heroui/switch'
+
 import { VisuallyHidden } from '@react-aria/visually-hidden'
-import { SwitchProps, useSwitch } from '@heroui/switch'
+import { useSwitch } from '@heroui/switch'
 import clsx from 'clsx'
 import { useTheme } from '@heroui/use-theme'
 
 import { SunFilledIcon, MoonFilledIcon } from '@/components/icons'
+import { useI18n } from '@/i18n/i18n-provider'
 
-export interface ThemeSwitchProps {
+interface ThemeSwitchProps {
   className?: string
   classNames?: SwitchProps['classNames']
 }
@@ -15,9 +18,9 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
   className,
   classNames,
 }) => {
-  const [isMounted, setIsMounted] = useState(false)
-
+  const { t } = useI18n()
   const { theme, setTheme } = useTheme()
+  const isLight = theme === 'light'
 
   const {
     Component,
@@ -27,19 +30,13 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
     getInputProps,
     getWrapperProps,
   } = useSwitch({
-    isSelected: theme === 'light',
-    onChange: () => setTheme(theme === 'light' ? 'dark' : 'light'),
+    isSelected: isLight,
+    onChange: () => setTheme(isLight ? 'dark' : 'light'),
   })
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
-
-  if (!isMounted) return <div className="w-6 h-6" />
 
   return (
     <Component
-      aria-label={isSelected ? 'Switch to dark mode' : 'Switch to light mode'}
+      aria-label={isSelected ? t('theme.toDark') : t('theme.toLight')}
       {...getBaseProps({
         className: clsx(
           'px-px transition-opacity hover:opacity-80 cursor-pointer',
@@ -60,6 +57,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({
               'bg-transparent',
               'rounded-lg',
               'flex items-center justify-center',
+              'pointer-events-none',
               'group-data-[selected=true]:bg-transparent',
               '!text-default-500',
               'pt-px',

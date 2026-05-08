@@ -3,17 +3,17 @@ import type { TaskStatus } from '@/store/slices/tasksSlice'
 export const TASK_STATUS_OPTIONS = [
   {
     key: 'pending',
-    label: 'Pendiente',
+    labelKey: 'status.pending',
     color: 'warning',
   },
   {
     key: 'in progress',
-    label: 'En progreso',
+    labelKey: 'status.inProgress',
     color: 'primary',
   },
   {
     key: 'completed',
-    label: 'Completada',
+    labelKey: 'status.completed',
     color: 'success',
   },
 ] as const

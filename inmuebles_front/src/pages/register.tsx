@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { Button } from '@heroui/button'
 import { useNavigate } from 'react-router-dom'
 import { Input } from '@heroui/input'
@@ -9,17 +9,43 @@ import { AuthPanel } from '@/components/auth/auth-panel'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { registerUser } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/errors'
+import { useI18n } from '@/i18n/i18n-provider'
+
+interface RegisterState {
+  confirmPassword: string
+  email: string
+  error: string | null
+  loading: boolean
+  name: string
+  password: string
+}
+
+const initialRegisterState: RegisterState = {
+  confirmPassword: '',
+  email: '',
+  error: null,
+  loading: false,
+  name: '',
+  password: '',
+}
+
+function mergeRegisterState(
+  state: RegisterState,
+  patch: Partial<RegisterState>
+) {
+  return { ...state, ...patch }
+}
 
 export default function RegisterPage() {
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { token, user } = useAppSelector(state => state.auth)
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [formState, setFormState] = useReducer(
+    mergeRegisterState,
+    initialRegisterState
+  )
+  const { confirmPassword, email, error, loading, name, password } = formState
 
   useEffect(() => {
     if (token && user) {
@@ -29,19 +55,22 @@ export default function RegisterPage() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setLoading(true)
-    setError(null)
+    setFormState({ error: null, loading: true })
 
     if (password !== confirmPassword) {
-      setError('Las contraseñas no coinciden')
-      setLoading(false)
+      setFormState({
+        error: t('error.passwordMismatch'),
+        loading: false,
+      })
 
       return
     }
 
     if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
-      setLoading(false)
+      setFormState({
+        error: t('error.passwordMin'),
+        loading: false,
+      })
 
       return
     }
@@ -56,55 +85,61 @@ export default function RegisterPage() {
       ).unwrap()
       navigate('/login', { replace: true })
     } catch (error) {
-      setError(getErrorMessage(error, 'Error al registrarse'))
+      setFormState({ error: getErrorMessage(error, t('error.register')) })
     } finally {
-      setLoading(false)
+      setFormState({ loading: false })
     }
   }
 
   return (
     <AuthPanel
       footerHref="/login"
-      footerLabel="Inicia sesión"
-      footerText="¿Ya tienes cuenta?"
-      subtitle="Crea tu acceso para administrar inmuebles y tareas."
-      title="Crea tu cuenta"
+      footerLabel={t('auth.registerFooterLabel')}
+      footerText={t('auth.registerFooterText')}
+      subtitle={t('auth.registerSubtitle')}
+      title={t('auth.registerTitle')}
     >
       <form className="space-y-4" onSubmit={onSubmit}>
         <Input
           isRequired
           autoComplete="name"
           className="w-full"
-          label="Nombre completo"
+          label={t('field.fullName')}
+          size="sm"
           value={name}
-          onChange={event => setName(event.target.value)}
+          onChange={event => setFormState({ name: event.target.value })}
         />
         <Input
           isRequired
           autoComplete="email"
           className="w-full"
-          label="Email"
+          label={t('field.email')}
+          size="sm"
           type="email"
           value={email}
-          onChange={event => setEmail(event.target.value)}
+          onChange={event => setFormState({ email: event.target.value })}
         />
         <Input
           isRequired
           autoComplete="new-password"
           className="w-full"
-          label="Contraseña"
+          label={t('field.password')}
+          size="sm"
           type="password"
           value={password}
-          onChange={event => setPassword(event.target.value)}
+          onChange={event => setFormState({ password: event.target.value })}
         />
         <Input
           isRequired
           autoComplete="new-password"
           className="w-full"
-          label="Confirmar contraseña"
+          label={t('field.confirmPassword')}
+          size="sm"
           type="password"
           value={confirmPassword}
-          onChange={event => setConfirmPassword(event.target.value)}
+          onChange={event =>
+            setFormState({ confirmPassword: event.target.value })
+          }
         />
         {error && <p className="text-danger text-sm text-center">{error}</p>}
         <Button
@@ -112,9 +147,10 @@ export default function RegisterPage() {
           className="mt-6"
           color="primary"
           isLoading={loading}
+          size="sm"
           type="submit"
         >
-          Registrarse
+          {t('auth.registerButton')}
         </Button>
       </form>
     </AuthPanel>

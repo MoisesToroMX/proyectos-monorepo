@@ -1,3 +1,5 @@
+import type { Task } from '@/store/slices/tasksSlice'
+
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@heroui/button'
@@ -15,14 +17,30 @@ import {
 import { TaskStatusChip } from '@/features/tasks/components/task-status-chip'
 import { TASK_STATUS_OPTIONS } from '@/features/tasks/task-status'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
-import {
-  fetchTasks,
-  updateTask,
-  deleteTask,
-  Task,
-} from '@/store/slices/tasksSlice'
+import { deleteTask, fetchTasks, updateTask } from '@/store/slices/tasksSlice'
 import { fetchProjects } from '@/store/slices/projectsSlice'
 import { getErrorMessage } from '@/utils/errors'
+import { useI18n } from '@/i18n/i18n-provider'
+
+interface TaskDraft {
+  description: string
+  status: Task['status']
+  title: string
+}
+
+const emptyTaskDraft: TaskDraft = {
+  description: '',
+  status: 'pending',
+  title: '',
+}
+
+function toTaskDraft(task: Task): TaskDraft {
+  return {
+    description: task.description,
+    status: task.status,
+    title: task.title,
+  }
+}
 
 export default function TaskDetailPage() {
   const { userId, projectId, taskId } = useParams<{
@@ -31,13 +49,12 @@ export default function TaskDetailPage() {
     taskId: string
   }>()
   const dispatch = useAppDispatch()
+  const { locale, t } = useI18n()
   const navigate = useNavigate()
   const { items: tasks } = useAppSelector(state => state.tasks)
   const { items: projects } = useAppSelector(state => state.projects)
 
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [status, setStatus] = useState<Task['status']>('pending')
+  const [draft, setDraft] = useState<TaskDraft>(emptyTaskDraft)
   const [isEditing, setIsEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -50,13 +67,15 @@ export default function TaskDetailPage() {
     return projects.find(project => project.id === Number(projectId))
   }, [projectId, projects])
 
-  useEffect(() => {
-    if (currentTask) {
-      setTitle(currentTask.title)
-      setDescription(currentTask.description)
-      setStatus(currentTask.status)
+  const createdAtLabel = useMemo(() => {
+    if (!currentTask) {
+      return ''
     }
-  }, [currentTask])
+
+    return new Date(currentTask.created_at).toLocaleDateString(
+      locale === 'es' ? 'es-MX' : 'en-US'
+    )
+  }, [currentTask, locale])
 
   useEffect(() => {
     dispatch(fetchProjects())
@@ -77,15 +96,15 @@ export default function TaskDetailPage() {
         updateTask({
           task_id: Number(taskId),
           data: {
-            title: title.trim(),
-            description: description.trim(),
-            status,
+            description: draft.description.trim(),
+            status: draft.status,
+            title: draft.title.trim(),
           },
         })
       ).unwrap()
       setIsEditing(false)
     } catch (error) {
-      setError(getErrorMessage(error, 'No se pudo guardar la tarea'))
+      setError(getErrorMessage(error, t('taskDetail.saveError')))
     } finally {
       setSaving(false)
     }
@@ -100,24 +119,29 @@ export default function TaskDetailPage() {
       await dispatch(deleteTask({ task_id: Number(taskId) })).unwrap()
       navigate(`/user/${userId}/projects/${projectId}/tasks`)
     } catch (error) {
-      setError(getErrorMessage(error, 'No se pudo eliminar la tarea'))
+      setError(getErrorMessage(error, t('taskDetail.deleteError')))
     }
   }
 
   const onCancel = () => {
     if (currentTask) {
-      setTitle(currentTask.title)
-      setDescription(currentTask.description)
-      setStatus(currentTask.status)
+      setDraft(toTaskDraft(currentTask))
     }
 
     setIsEditing(false)
   }
 
+  const onStartEditing = () => {
+    if (!currentTask) return
+
+    setDraft(toTaskDraft(currentTask))
+    setIsEditing(true)
+  }
+
   if (!currentTask) {
     return (
       <Page>
-        <LoadingState label="Cargando tarea..." />
+        <LoadingState label={t('taskDetail.loading')} />
       </Page>
     )
   }
@@ -131,24 +155,30 @@ export default function TaskDetailPage() {
               navigate(`/user/${userId}/projects/${projectId}/tasks`)
             }
           >
-            Volver a tareas
+            {t('taskDetail.backToTasks')}
           </BackButton>
         }
-        description={currentProject?.name ?? 'Inmueble seleccionado'}
-        eyebrow="Detalle"
+        description={currentProject?.name ?? t('taskDetail.selectedProperty')}
+        eyebrow={t('taskDetail.eyebrow')}
         title={currentTask.title}
       />
       {error && <p className="text-sm text-danger">{error}</p>}
 
-      <Card className="border border-default-200" shadow="sm">
+      <Card className="border border-default-200" shadow="none">
         <CardHeader>
           <div className="flex w-full flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 flex-1">
               {isEditing ? (
                 <Input
-                  aria-label="Título de la tarea"
-                  value={title}
-                  onChange={event => setTitle(event.target.value)}
+                  aria-label={t('taskDetail.titleAria')}
+                  size="sm"
+                  value={draft.title}
+                  onChange={event =>
+                    setDraft(current => ({
+                      ...current,
+                      title: event.target.value,
+                    }))
+                  }
                 />
               ) : (
                 <h2 className="truncate text-2xl font-bold">
@@ -162,13 +192,19 @@ export default function TaskDetailPage() {
         <CardBody className="gap-6">
           <section>
             <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-default-400">
-              Descripción
+              {t('taskDetail.description')}
             </h3>
             {isEditing ? (
               <Textarea
                 minRows={3}
-                value={description}
-                onChange={event => setDescription(event.target.value)}
+                size="sm"
+                value={draft.description}
+                onChange={event =>
+                  setDraft(current => ({
+                    ...current,
+                    description: event.target.value,
+                  }))
+                }
               />
             ) : (
               <p className="text-default-600">{currentTask.description}</p>
@@ -178,22 +214,26 @@ export default function TaskDetailPage() {
           {isEditing && (
             <section>
               <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.14em] text-default-400">
-                Estado
+                {t('taskDetail.status')}
               </h3>
               <Select
-                aria-label="Estado de la tarea"
+                aria-label={t('taskDetail.statusAria')}
                 items={TASK_STATUS_OPTIONS}
-                selectedKeys={[status]}
+                selectedKeys={[draft.status]}
+                size="sm"
                 onSelectionChange={keys => {
                   const selected = Array.from(keys)[0]
 
                   if (typeof selected === 'string') {
-                    setStatus(selected as Task['status'])
+                    setDraft(current => ({
+                      ...current,
+                      status: selected as Task['status'],
+                    }))
                   }
                 }}
               >
                 {option => (
-                  <SelectItem key={option.key}>{option.label}</SelectItem>
+                  <SelectItem key={option.key}>{t(option.labelKey)}</SelectItem>
                 )}
               </Select>
             </section>
@@ -201,37 +241,48 @@ export default function TaskDetailPage() {
 
           <dl className="grid gap-3 rounded-lg bg-default-50 p-4 text-sm text-default-600 sm:grid-cols-2">
             <div>
-              <dt className="font-medium text-default-500">Inmueble</dt>
-              <dd>{currentProject?.name ?? 'Sin nombre'}</dd>
+              <dt className="font-medium text-default-500">
+                {t('taskDetail.property')}
+              </dt>
+              <dd>{currentProject?.name ?? t('taskDetail.unnamed')}</dd>
             </div>
             <div>
-              <dt className="font-medium text-default-500">Creado</dt>
-              <dd>{new Date(currentTask.created_at).toLocaleDateString()}</dd>
+              <dt className="font-medium text-default-500">
+                {t('taskDetail.created')}
+              </dt>
+              <dd>{createdAtLabel}</dd>
             </div>
           </dl>
 
           <div className="flex flex-wrap justify-end gap-2">
             {isEditing ? (
               <>
-                <Button color="primary" isLoading={saving} onPress={onSave}>
-                  Guardar
+                <Button
+                  color="primary"
+                  isLoading={saving}
+                  size="sm"
+                  variant="solid"
+                  onPress={onSave}
+                >
+                  {t('taskDetail.save')}
                 </Button>
-                <Button variant="flat" onPress={onCancel}>
-                  Cancelar
+                <Button size="sm" variant="flat" onPress={onCancel}>
+                  {t('taskDetail.cancel')}
                 </Button>
               </>
             ) : (
               <>
                 <Button
                   color="primary"
-                  variant="flat"
-                  onPress={() => setIsEditing(true)}
+                  size="sm"
+                  variant="solid"
+                  onPress={onStartEditing}
                 >
-                  Editar
+                  {t('taskDetail.edit')}
                 </Button>
                 <ConfirmDeleteButton
-                  confirmMessage="¿Eliminar esta tarea?"
-                  label="Eliminar tarea"
+                  ariaLabel={t('taskDetail.delete')}
+                  confirmMessage={t('tasks.deleteConfirm')}
                   onConfirm={onDelete}
                 />
               </>

@@ -1,7 +1,8 @@
 import type { Project } from '@/store/slices/projectsSlice'
 
-import { Button } from '@heroui/button'
 import { Card, CardBody } from '@heroui/card'
+
+import { useI18n } from '@/i18n/i18n-provider'
 
 interface ProjectCardProps {
   onOpen: () => void
@@ -10,14 +11,19 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ onOpen, project, taskCount }: ProjectCardProps) {
-  const taskLabel = taskCount === 1 ? 'tarea' : 'tareas'
+  const { t } = useI18n()
+  const taskLabel =
+    taskCount === 1 ? t('projects.taskSingular') : t('projects.taskPlural')
 
   return (
     <Card
-      className="border border-default-200 transition-transform hover:-translate-y-0.5 hover:shadow-md"
-      shadow="sm"
+      isPressable
+      aria-label={`${t('projects.openProperty')}: ${project.name}`}
+      className="border border-default-200 transition-colors hover:border-primary/60"
+      shadow="none"
+      onPress={onOpen}
     >
-      <CardBody className="gap-4 p-5">
+      <CardBody className="gap-4 p-4 text-left">
         <div>
           <h2 className="text-lg font-semibold text-foreground">
             {project.name}
@@ -30,9 +36,6 @@ export function ProjectCard({ onOpen, project, taskCount }: ProjectCardProps) {
           <span className="rounded-md bg-default-100 px-3 py-1 text-xs font-medium text-default-600">
             {taskCount} {taskLabel}
           </span>
-          <Button color="primary" size="sm" variant="flat" onPress={onOpen}>
-            Ver operación
-          </Button>
         </div>
       </CardBody>
     </Card>

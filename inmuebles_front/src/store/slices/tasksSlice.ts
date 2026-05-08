@@ -16,7 +16,7 @@ export interface Task {
   created_at: string
 }
 
-export interface TasksState {
+interface TasksState {
   items: Task[]
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null

@@ -181,16 +181,15 @@ app/
     auth.py
     projects.py
     tasks.py
-    middlewares/
-      auth_context.py
 ```
 
 ## Notas de desarrollo
 
-- El middleware `AuthMiddleware` protege `'/projects'` y `'/tasks'` cuando no hay token.
+- Las rutas privadas se protegen con dependencias JWT en cada endpoint.
 - Las entidades usan SQLModel; `ProjectCreate` y `TaskCreate` no aceptan `user_id` ni `created_at`; el servidor los asigna.
 - CORS configurado por `CORS_ORIGINS`, por defecto para
-  `http://localhost:5173` y `http://127.0.0.1:5173`.
+  `http://localhost:5174`, `http://127.0.0.1:5174`,
+  `http://localhost:8080` y `http://127.0.0.1:8080`.
 
 ## Scripts útiles
 

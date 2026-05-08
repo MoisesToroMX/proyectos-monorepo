@@ -1,8 +1,7 @@
 import type { FormEvent } from 'react'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Button } from '@heroui/button'
 import { Input } from '@heroui/input'
 import { Select, SelectItem } from '@heroui/select'
 
@@ -18,25 +17,42 @@ import { createTask, deleteTask, fetchTasks } from '@/store/slices/tasksSlice'
 import { fetchProjects } from '@/store/slices/projectsSlice'
 import {
   BackButton,
+  ClearFiltersButton,
   EmptyState,
   LoadingState,
   MetricCard,
   Page,
   PageHeader,
+  ScrollableList,
   Toolbar,
 } from '@/components/ui/page'
 import { getErrorMessage } from '@/utils/errors'
+import { useI18n } from '@/i18n/i18n-provider'
 
-const TASK_FILTER_OPTIONS = [
-  {
-    key: 'all',
-    label: 'Todos',
-  },
-  ...TASK_STATUS_OPTIONS.map(option => ({
-    key: option.key,
-    label: option.label,
-  })),
-]
+interface TasksPageState {
+  creating: boolean
+  description: string
+  error: string | null
+  searchTerm: string
+  statusFilter: TaskStatusFilter
+  title: string
+}
+
+const initialTasksPageState: TasksPageState = {
+  creating: false,
+  description: '',
+  error: null,
+  searchTerm: '',
+  statusFilter: 'all',
+  title: '',
+}
+
+function mergeTasksPageState(
+  state: TasksPageState,
+  patch: Partial<TasksPageState>
+) {
+  return { ...state, ...patch }
+}
 
 export default function TasksPage() {
   const { userId, projectId } = useParams<{
@@ -44,16 +60,16 @@ export default function TasksPage() {
     projectId: string
   }>()
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { items: tasks, status } = useAppSelector(state => state.tasks)
   const { items: projects } = useAppSelector(state => state.projects)
-
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<TaskStatusFilter>('all')
-  const [error, setError] = useState<string | null>(null)
+  const [pageState, setPageState] = useReducer(
+    mergeTasksPageState,
+    initialTasksPageState
+  )
+  const { creating, description, error, searchTerm, statusFilter, title } =
+    pageState
 
   const currentProject = useMemo(() => {
     return projects.find(project => project.id === Number(projectId))
@@ -71,8 +87,7 @@ export default function TasksPage() {
     event.preventDefault()
     if (!projectId) return
 
-    setCreating(true)
-    setError(null)
+    setPageState({ creating: true, error: null })
 
     try {
       await dispatch(
@@ -82,12 +97,11 @@ export default function TasksPage() {
           project_id: Number(projectId),
         })
       ).unwrap()
-      setTitle('')
-      setDescription('')
+      setPageState({ description: '', title: '' })
     } catch (error) {
-      setError(getErrorMessage(error, 'No se pudo crear la tarea'))
+      setPageState({ error: getErrorMessage(error, t('tasks.createError')) })
     } finally {
-      setCreating(false)
+      setPageState({ creating: false })
     }
   }
 
@@ -96,12 +110,12 @@ export default function TasksPage() {
   }
 
   const onDeleteTask = async (taskId: number) => {
-    setError(null)
+    setPageState({ error: null })
 
     try {
       await dispatch(deleteTask({ task_id: taskId })).unwrap()
     } catch (error) {
-      setError(getErrorMessage(error, 'Error al eliminar la tarea'))
+      setPageState({ error: getErrorMessage(error, t('tasks.deleteError')) })
     }
   }
 
@@ -118,83 +132,91 @@ export default function TasksPage() {
       <PageHeader
         actions={
           <BackButton onPress={() => navigate(`/user/${userId}/projects`)}>
-            Volver a inmuebles
+            {t('tasks.backToProperties')}
           </BackButton>
         }
         description={
-          currentProject?.description ??
-          'Seguimiento operativo del inmueble seleccionado.'
+          currentProject?.description ?? t('tasks.selectedPropertyDescription')
         }
-        eyebrow="Tareas"
-        title={currentProject?.name ?? 'Inmueble'}
+        eyebrow={t('tasks.eyebrow')}
+        title={currentProject?.name ?? t('tasks.selectedProperty')}
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <MetricCard label="Tareas" value={tasks.length} />
-        <MetricCard label="Pendientes" value={tasks.length - completedTasks} />
-        <MetricCard label="Completadas" value={completedTasks} />
+        <MetricCard label={t('tasks.metricTasks')} value={tasks.length} />
+        <MetricCard
+          label={t('tasks.metricPending')}
+          value={tasks.length - completedTasks}
+        />
+        <MetricCard label={t('tasks.metricCompleted')} value={completedTasks} />
       </div>
 
       <TaskForm
         description={description}
         isCreating={creating}
         title={title}
-        onDescriptionChange={setDescription}
+        onDescriptionChange={nextDescription =>
+          setPageState({ description: nextDescription })
+        }
         onSubmit={onCreateTask}
-        onTitleChange={setTitle}
+        onTitleChange={nextTitle => setPageState({ title: nextTitle })}
       />
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <Toolbar>
         <Input
           className="flex-1"
-          placeholder="Buscar tareas..."
+          placeholder={t('tasks.search')}
+          size="sm"
           value={searchTerm}
-          onChange={event => setSearchTerm(event.target.value)}
+          onChange={event => setPageState({ searchTerm: event.target.value })}
         />
         <Select
-          aria-label="Filtrar por estado"
+          aria-label={t('tasks.filterByStatus')}
           className="w-full sm:w-56"
-          items={TASK_FILTER_OPTIONS}
-          placeholder="Filtrar por estado"
+          items={[
+            { key: 'all', label: t('status.all') },
+            ...TASK_STATUS_OPTIONS.map(option => ({
+              key: option.key,
+              label: t(option.labelKey),
+            })),
+          ]}
+          placeholder={t('tasks.filterByStatus')}
           selectedKeys={[statusFilter]}
+          size="sm"
           onSelectionChange={keys => {
             const selected = Array.from(keys)[0]
 
             if (typeof selected === 'string') {
-              setStatusFilter(selected as TaskStatusFilter)
+              setPageState({ statusFilter: selected as TaskStatusFilter })
             }
           }}
         >
           {option => <SelectItem key={option.key}>{option.label}</SelectItem>}
         </Select>
         {(searchTerm || statusFilter !== 'all') && (
-          <Button
-            variant="flat"
+          <ClearFiltersButton
             onPress={() => {
-              setSearchTerm('')
-              setStatusFilter('all')
+              setPageState({ searchTerm: '', statusFilter: 'all' })
             }}
-          >
-            Limpiar
-          </Button>
+          />
         )}
       </Toolbar>
 
-      {status === 'loading' && <LoadingState label="Cargando tareas..." />}
+      {status === 'loading' && <LoadingState label={t('tasks.loading')} />}
 
       {filteredTasks.length === 0 && status !== 'loading' && (
         <EmptyState
           description={
             tasks.length === 0
-              ? 'Crea una tarea para empezar el seguimiento.'
-              : 'No se encontraron tareas con los filtros aplicados.'
+              ? t('tasks.emptyDescription')
+              : t('tasks.noResultsDescription')
           }
-          title={tasks.length === 0 ? 'Sin tareas' : 'Sin resultados'}
+          title={tasks.length === 0 ? t('tasks.empty') : t('tasks.noResults')}
         />
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <ScrollableList className="grid gap-4 lg:grid-cols-2">
         {filteredTasks.map(task => (
           <TaskCard
             key={task.id}
@@ -203,7 +225,7 @@ export default function TasksPage() {
             onOpen={() => onTaskClick(task.id)}
           />
         ))}
-      </div>
+      </ScrollableList>
     </Page>
   )
 }

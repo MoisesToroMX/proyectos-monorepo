@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 
 import AppRouter from '@/components/AppRouter'
+import { useI18n } from '@/i18n/i18n-provider'
 
 const LoginPage = lazy(() => import('@/pages/login'))
 const RegisterPage = lazy(() => import('@/pages/register'))
@@ -12,9 +13,11 @@ const UserRoutes = lazy(() =>
 )
 
 function RouteFallback() {
+  const { t } = useI18n()
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background text-sm text-default-500">
-      Cargando...
+      {t('app.loading')}
     </div>
   )
 }

@@ -1,0 +1,33 @@
+from datetime import datetime, timezone
+
+import jwt
+import pytest
+
+from app.credentials import security
+
+
+def test_access_token_expires_in_max_two_hours() -> None:
+  token = security.create_access_token({"user_id": "1"})
+  payload = jwt.decode(
+    token,
+    security.SECRET_KEY,
+    algorithms=[security.ALGORITHM],
+  )
+  expires_at = datetime.fromtimestamp(payload["exp"], timezone.utc)
+  issued_at = datetime.fromtimestamp(payload["iat"], timezone.utc)
+
+  assert (expires_at - issued_at).total_seconds() == 2 * 60 * 60
+
+
+def test_decode_rejects_expired_token() -> None:
+  expired_token = jwt.encode(
+    {
+      "exp": datetime.fromtimestamp(0, timezone.utc),
+      "user_id": "1",
+    },
+    security.SECRET_KEY,
+    algorithm=security.ALGORITHM,
+  )
+
+  with pytest.raises(ValueError, match="Token expirado"):
+    security.decode_access_token(expired_token)

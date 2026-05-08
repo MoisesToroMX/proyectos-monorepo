@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useReducer } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@heroui/button'
 import { Input } from '@heroui/input'
@@ -15,28 +15,55 @@ import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { createProject, fetchProjects } from '@/store/slices/projectsSlice'
 import { fetchTasks } from '@/store/slices/tasksSlice'
 import {
+  ClearFiltersButton,
   EmptyState,
   LoadingState,
   MetricCard,
   Page,
   PageHeader,
+  ScrollableList,
   Toolbar,
 } from '@/components/ui/page'
 import { getErrorMessage } from '@/utils/errors'
+import { useI18n } from '@/i18n/i18n-provider'
+
+interface ProjectsPageState {
+  creating: boolean
+  description: string
+  error: string | null
+  name: string
+  searchTerm: string
+}
+
+const initialProjectsPageState: ProjectsPageState = {
+  creating: false,
+  description: '',
+  error: null,
+  name: '',
+  searchTerm: '',
+}
+
+function mergeProjectsPageState(
+  state: ProjectsPageState,
+  patch: Partial<ProjectsPageState>
+) {
+  return { ...state, ...patch }
+}
 
 export default function ProjectsPage() {
   const { userId } = useParams<{ userId: string }>()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const { items: projects, status: projStatus } = useAppSelector(
     s => s.projects
   )
   const { items: tasks } = useAppSelector(s => s.tasks)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [creating, setCreating] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [pageState, setPageState] = useReducer(
+    mergeProjectsPageState,
+    initialProjectsPageState
+  )
+  const { creating, description, error, name, searchTerm } = pageState
 
   useEffect(() => {
     dispatch(fetchProjects())
@@ -57,8 +84,7 @@ export default function ProjectsPage() {
 
   const onCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    setCreating(true)
-    setError(null)
+    setPageState({ creating: true, error: null })
 
     try {
       await dispatch(
@@ -67,35 +93,44 @@ export default function ProjectsPage() {
           description: description.trim(),
         })
       ).unwrap()
-      setName('')
-      setDescription('')
+      setPageState({ description: '', name: '' })
     } catch (error) {
-      setError(getErrorMessage(error, 'No se pudo crear el inmueble'))
+      setPageState({
+        error: getErrorMessage(error, t('projects.createError')),
+      })
     } finally {
-      setCreating(false)
+      setPageState({ creating: false })
     }
   }
 
   return (
     <Page className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8">
       <PageHeader
-        description="Administra propiedades, pendientes y avance operativo desde una vista limpia."
-        eyebrow="Portafolio"
-        title="Inmuebles"
+        description={t('projects.description')}
+        eyebrow={t('projects.eyebrow')}
+        title={t('projects.title')}
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <MetricCard label="Inmuebles" value={projects.length} />
-        <MetricCard label="Tareas" value={tasks.length} />
-        <MetricCard label="Completadas" value={completedTasks} />
+        <MetricCard
+          label={t('projects.metricProperties')}
+          value={projects.length}
+        />
+        <MetricCard label={t('projects.metricTasks')} value={tasks.length} />
+        <MetricCard
+          label={t('projects.metricCompleted')}
+          value={completedTasks}
+        />
       </div>
 
       <ProjectForm
         description={description}
         isCreating={creating}
         name={name}
-        onDescriptionChange={setDescription}
-        onNameChange={setName}
+        onDescriptionChange={nextDescription =>
+          setPageState({ description: nextDescription })
+        }
+        onNameChange={nextName => setPageState({ name: nextName })}
         onSubmit={onCreate}
       />
       {error && <p className="text-sm text-danger">{error}</p>}
@@ -103,19 +138,20 @@ export default function ProjectsPage() {
       <Toolbar>
         <Input
           className="flex-1"
-          placeholder="Buscar inmuebles..."
+          placeholder={t('projects.search')}
+          size="sm"
           value={searchTerm}
-          onChange={event => setSearchTerm(event.target.value)}
+          onChange={event => setPageState({ searchTerm: event.target.value })}
         />
         {searchTerm && (
-          <Button variant="flat" onPress={() => setSearchTerm('')}>
-            Limpiar
-          </Button>
+          <ClearFiltersButton
+            onPress={() => setPageState({ searchTerm: '' })}
+          />
         )}
       </Toolbar>
 
       {projStatus === 'loading' && (
-        <LoadingState label="Cargando inmuebles..." />
+        <LoadingState label={t('projects.loading')} />
       )}
 
       {projStatus !== 'loading' && filteredProjects.length === 0 && (
@@ -124,23 +160,24 @@ export default function ProjectsPage() {
             searchTerm ? (
               <Button
                 color="primary"
-                variant="flat"
-                onPress={() => setSearchTerm('')}
+                size="sm"
+                variant="solid"
+                onPress={() => setPageState({ searchTerm: '' })}
               >
-                Limpiar búsqueda
+                {t('projects.clearSearch')}
               </Button>
             ) : null
           }
           description={
             searchTerm
-              ? 'No hay inmuebles que coincidan con la búsqueda.'
-              : 'Crea tu primer inmueble para empezar a organizar tareas.'
+              ? t('projects.noResultsDescription')
+              : t('projects.emptyDescription')
           }
-          title={searchTerm ? 'Sin resultados' : 'Sin inmuebles'}
+          title={searchTerm ? t('projects.noResults') : t('projects.empty')}
         />
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <ScrollableList className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filteredProjects.map(project => (
           <ProjectCard
             key={project.id}
@@ -149,7 +186,7 @@ export default function ProjectsPage() {
             onOpen={() => navigate(`/user/${userId}/projects/${project.id}`)}
           />
         ))}
-      </div>
+      </ScrollableList>
     </Page>
   )
 }

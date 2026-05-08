@@ -9,9 +9,11 @@ import { AuthPanel } from '@/components/auth/auth-panel'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { loginUser } from '@/store/slices/authSlice'
 import { getErrorMessage } from '@/utils/errors'
+import { useI18n } from '@/i18n/i18n-provider'
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { token, user } = useAppSelector(state => state.auth)
   const [email, setEmail] = useState('')
@@ -40,7 +42,7 @@ export default function LoginPage() {
 
       navigate(`/user/${result.user.id}/projects`, { replace: true })
     } catch (error) {
-      setError(getErrorMessage(error, 'Error al iniciar sesión'))
+      setError(getErrorMessage(error, t('error.login')))
     } finally {
       setLoading(false)
     }
@@ -49,17 +51,18 @@ export default function LoginPage() {
   return (
     <AuthPanel
       footerHref="/register"
-      footerLabel="Regístrate"
-      footerText="¿No tienes cuenta?"
-      subtitle="Entra para continuar con tus inmuebles activos."
-      title="Inicia sesión"
+      footerLabel={t('auth.loginFooterLabel')}
+      footerText={t('auth.loginFooterText')}
+      subtitle={t('auth.loginSubtitle')}
+      title={t('auth.loginTitle')}
     >
       <form className="space-y-4" onSubmit={onSubmit}>
         <Input
           isRequired
           autoComplete="email"
           className="w-full"
-          label="Email"
+          label={t('field.email')}
+          size="sm"
           type="email"
           value={email}
           onChange={event => setEmail(event.target.value)}
@@ -68,7 +71,8 @@ export default function LoginPage() {
           isRequired
           autoComplete="current-password"
           className="w-full"
-          label="Contraseña"
+          label={t('field.password')}
+          size="sm"
           type="password"
           value={password}
           onChange={event => setPassword(event.target.value)}
@@ -79,9 +83,10 @@ export default function LoginPage() {
           className="mt-6"
           color="primary"
           isLoading={loading}
+          size="sm"
           type="submit"
         >
-          Iniciar sesión
+          {t('auth.loginButton')}
         </Button>
       </form>
     </AuthPanel>

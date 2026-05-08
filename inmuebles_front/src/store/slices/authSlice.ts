@@ -10,14 +10,14 @@ import {
 import { api, setAuthToken } from '@/store/api'
 import { persistAuthToken, readAuthToken } from '@/store/auth-storage'
 
-export interface User {
+interface User {
   id: number
   name: string
   email: string
   created_at: string
 }
 
-export interface AuthState {
+interface AuthState {
   token: string | null
   user: User | null
   status: 'idle' | 'loading' | 'succeeded' | 'failed'

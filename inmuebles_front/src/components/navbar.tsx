@@ -9,30 +9,52 @@ import {
   NavbarMenu,
   NavbarMenuItem,
 } from '@heroui/navbar'
-import { link as linkStyles } from '@heroui/theme'
-import clsx from 'clsx'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ChevronRight, LogOut } from 'lucide-react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { logoutAndClear } from '@/store/slices/authSlice'
-import { siteConfig } from '@/config/site'
 import { ThemeSwitch } from '@/components/theme-switch'
 import { BrandMark } from '@/components/ui/brand'
+import { LanguageSwitch } from '@/components/language-switch'
+import { useI18n } from '@/i18n/i18n-provider'
+
+interface RouteTrailItem {
+  href?: string
+  label: string
+}
 
 export const Navbar = () => {
   const dispatch = useAppDispatch()
+  const { t } = useI18n()
   const location = useLocation()
   const navigate = useNavigate()
-  const { userId } = useParams<{ userId: string }>()
+  const pathMatch = location.pathname.match(
+    /^\/user\/([^/]+)(?:\/projects(?:\/([^/]+)(?:\/tasks(?:\/([^/]+))?)?)?)?/
+  )
+  const userId = pathMatch?.[1]
+  const projectId = pathMatch?.[2]
+  const taskId = pathMatch?.[3]
   const { token, user } = useAppSelector(state => state.auth)
   const resolvedUserId = userId ?? (user ? String(user.id) : undefined)
   const projectsHref = resolvedUserId
     ? `/user/${resolvedUserId}/projects`
     : '/login'
-  const navItems = siteConfig.navItems.map(item => ({
-    ...item,
-    href: item.href === '/projects' ? projectsHref : item.href,
-  }))
+  const tasksHref =
+    resolvedUserId && projectId
+      ? `/user/${resolvedUserId}/projects/${projectId}/tasks`
+      : undefined
+  const routeItems: RouteTrailItem[] = [
+    { href: projectsHref, label: t('route.properties') },
+  ]
+
+  if (projectId) {
+    routeItems.push({ href: tasksHref, label: t('route.tasks') })
+  }
+
+  if (taskId) {
+    routeItems.push({ label: t('route.task') })
+  }
 
   const handleLogout = () => {
     dispatch(logoutAndClear())
@@ -51,23 +73,40 @@ export const Navbar = () => {
             <BrandMark />
           </Link>
         </NavbarBrand>
-        <div className="hidden gap-4 lg:flex">
-          {navItems.map(item => (
-            <NavbarItem key={item.href}>
-              <Link
-                className={clsx(
-                  linkStyles({ color: 'foreground' }),
-                  'data-[active=true]:text-primary data-[active=true]:font-medium'
-                )}
-                color="foreground"
-                data-active={location.pathname.startsWith(item.href)}
-                href={item.href}
-              >
-                {item.label}
-              </Link>
-            </NavbarItem>
+        <nav
+          aria-label={t('nav.route')}
+          className="hidden min-w-0 items-center gap-1 text-sm lg:flex"
+        >
+          {routeItems.map((item, index) => (
+            <div
+              key={item.href ?? item.label}
+              className="flex items-center gap-1"
+            >
+              {index > 0 && (
+                <ChevronRight
+                  aria-hidden="true"
+                  className="text-default-400"
+                  size={14}
+                />
+              )}
+              {item.href && index < routeItems.length - 1 ? (
+                <Link className="font-medium text-primary" href={item.href}>
+                  {item.label}
+                </Link>
+              ) : (
+                <span
+                  className={
+                    location.pathname === item.href
+                      ? 'font-semibold text-foreground'
+                      : 'font-medium text-default-600'
+                  }
+                >
+                  {item.label}
+                </span>
+              )}
+            </div>
           ))}
-        </div>
+        </nav>
       </NavbarContent>
 
       <NavbarContent
@@ -75,51 +114,66 @@ export const Navbar = () => {
         justify="end"
       >
         <NavbarItem className="hidden sm:flex gap-2">
+          <LanguageSwitch />
+        </NavbarItem>
+        <NavbarItem className="hidden sm:flex gap-2">
           <ThemeSwitch />
         </NavbarItem>
         <NavbarItem className="hidden md:flex">
           {token ? (
             <Button
-              className="text-sm font-normal"
+              className="h-9 px-4 text-sm font-medium"
               color="danger"
-              variant="flat"
+              size="sm"
+              startContent={<LogOut aria-hidden="true" size={16} />}
+              variant="solid"
               onPress={handleLogout}
             >
-              Cerrar sesión
+              {t('nav.logout')}
             </Button>
           ) : (
-            <Button as={Link} color="primary" href="/login" variant="flat">
-              Entrar
+            <Button
+              as={Link}
+              color="primary"
+              href="/login"
+              size="sm"
+              variant="solid"
+            >
+              {t('nav.login')}
             </Button>
           )}
         </NavbarItem>
       </NavbarContent>
 
-      <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">
-        {token && (
-          <Button
-            className="text-xs"
-            color="danger"
-            size="sm"
-            variant="flat"
-            onPress={handleLogout}
-          >
-            Salir
-          </Button>
-        )}
+      <NavbarContent className="sm:hidden basis-1 gap-2 pl-2" justify="end">
+        <LanguageSwitch />
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
 
       <NavbarMenu>
         <div className="mx-4 mt-2 flex flex-col gap-2">
-          {navItems.map(item => (
-            <NavbarMenuItem key={item.href}>
-              <Link color="foreground" href={item.href} size="lg">
+          {routeItems.map(item => (
+            <NavbarMenuItem key={`${item.href}-${item.label}`}>
+              <Link color="foreground" href={item.href ?? '#'} size="lg">
                 {item.label}
               </Link>
             </NavbarMenuItem>
           ))}
+          {token && (
+            <NavbarMenuItem>
+              <Button
+                className="w-full justify-start"
+                color="danger"
+                size="sm"
+                startContent={<LogOut aria-hidden="true" size={16} />}
+                variant="solid"
+                onPress={handleLogout}
+              >
+                {t('nav.logout')}
+              </Button>
+            </NavbarMenuItem>
+          )}
         </div>
       </NavbarMenu>
     </HeroUINavbar>

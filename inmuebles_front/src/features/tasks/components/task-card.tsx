@@ -1,10 +1,11 @@
 import type { Task } from '@/store/slices/tasksSlice'
+import type { KeyboardEvent } from 'react'
 
 import { Card, CardBody } from '@heroui/card'
-import { Button } from '@heroui/button'
 
 import { ConfirmDeleteButton } from '@/components/ui/confirm-delete-button'
 import { TaskStatusChip } from '@/features/tasks/components/task-status-chip'
+import { useI18n } from '@/i18n/i18n-provider'
 
 interface TaskCardProps {
   onDelete: () => Promise<void>
@@ -13,12 +14,28 @@ interface TaskCardProps {
 }
 
 export function TaskCard({ onDelete, onOpen, task }: TaskCardProps) {
+  const { t } = useI18n()
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+
+    event.preventDefault()
+    onOpen()
+  }
+
   return (
     <Card
-      className="border border-default-200 transition-transform hover:-translate-y-0.5 hover:shadow-md"
-      shadow="sm"
+      className="border border-default-200 transition-colors hover:border-primary/60"
+      shadow="none"
     >
-      <CardBody className="gap-4 p-5">
+      <CardBody
+        aria-label={`${t('tasks.openTask')}: ${task.title}`}
+        className="cursor-pointer gap-4 p-4 text-left"
+        role="button"
+        tabIndex={0}
+        onClick={onOpen}
+        onKeyDown={handleKeyDown}
+      >
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <h2 className="truncate text-lg font-semibold text-foreground">
@@ -30,12 +47,10 @@ export function TaskCard({ onDelete, onOpen, task }: TaskCardProps) {
           </div>
           <TaskStatusChip status={task.status} />
         </div>
-        <div className="flex justify-end gap-2">
-          <Button color="primary" size="sm" variant="flat" onPress={onOpen}>
-            Ver detalle
-          </Button>
+        <div className="flex justify-end">
           <ConfirmDeleteButton
-            confirmMessage="¿Eliminar esta tarea?"
+            ariaLabel={t('common.delete')}
+            confirmMessage={t('tasks.deleteConfirm')}
             onConfirm={onDelete}
           />
         </div>

@@ -12,7 +12,7 @@ export interface Project {
   created_at: string
 }
 
-export interface ProjectsState {
+interface ProjectsState {
   items: Project[]
   status: 'idle' | 'loading' | 'succeeded' | 'failed'
   error: string | null

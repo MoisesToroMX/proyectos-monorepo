@@ -7,6 +7,7 @@ import { MotionConfig } from 'framer-motion'
 import { Provider as ReduxProvider } from 'react-redux'
 
 import { usePrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion'
+import { I18nProvider } from '@/i18n/i18n-provider'
 import { store } from '@/store'
 import { logoutAndClear } from '@/store/slices/authSlice'
 import { attachAuthInterceptor } from '@/store/api'
@@ -33,11 +34,13 @@ export function Provider({ children }: { children: React.ReactNode }) {
 
   return (
     <ReduxProvider store={store}>
-      <MotionConfig reducedMotion={reducedMotion}>
-        <HeroUIProvider navigate={navigate} useHref={useHref}>
-          {children}
-        </HeroUIProvider>
-      </MotionConfig>
+      <I18nProvider>
+        <MotionConfig reducedMotion={reducedMotion}>
+          <HeroUIProvider navigate={navigate} useHref={useHref}>
+            {children}
+          </HeroUIProvider>
+        </MotionConfig>
+      </I18nProvider>
     </ReduxProvider>
   )
 }
