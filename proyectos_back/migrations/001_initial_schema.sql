@@ -1,6 +1,6 @@
 -- Initial PostgreSQL schema for the project and task manager.
 -- Apply with:
--- psql "$DATABASE_URL" -f inmuebles_back/migrations/001_initial_schema.sql
+-- psql "$DATABASE_URL" -f proyectos_back/migrations/001_initial_schema.sql
 
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,

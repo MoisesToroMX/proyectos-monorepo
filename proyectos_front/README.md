@@ -58,7 +58,7 @@ Antes de comenzar, asegúrate de tener instalado:
 
 ```bash
 git clone <url-del-repositorio>
-cd inmuebles_front
+cd proyectos_front
 ```
 
 ### 2. Instalar dependencias

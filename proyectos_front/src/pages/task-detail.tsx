@@ -182,7 +182,7 @@ export default function TaskDetailPage() {
                   }
                 />
               ) : (
-                <h2 className="truncate text-2xl font-bold">
+                <h2 className="truncate text-2xl font-semibold">
                   {currentTask.title}
                 </h2>
               )}

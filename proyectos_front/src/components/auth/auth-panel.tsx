@@ -43,7 +43,7 @@ export function AuthPanel({
         <div className="grid w-full gap-8 lg:grid-cols-[1fr_440px] lg:items-center">
           <section className="hidden lg:block">
             <BrandMark />
-            <h1 className="mt-8 max-w-xl text-5xl font-bold leading-tight tracking-tight">
+            <h1 className="mt-8 max-w-xl text-5xl font-semibold leading-tight tracking-tight">
               {t('auth.heroTitle')}
             </h1>
             <p className="mt-5 max-w-lg text-base leading-7 text-default-600">
@@ -57,7 +57,9 @@ export function AuthPanel({
                 <div className="mb-6 lg:hidden">
                   <BrandMark />
                 </div>
-                <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">
+                  {title}
+                </h2>
                 <p className="mt-2 text-sm leading-6 text-default-500">
                   {subtitle}
                 </p>

@@ -24,7 +24,7 @@ services:
 
   backend:
     build:
-      context: ./inmuebles_back
+      context: ./proyectos_back
       dockerfile: Dockerfile
     container_name: proyectos_backend
     depends_on:
@@ -50,7 +50,7 @@ services:
 
   frontend:
     build:
-      context: ./inmuebles_front
+      context: ./proyectos_front
       dockerfile: Dockerfile
       args:
         VITE_API_URL: ${FRONTEND_API_URL:-http://127.0.0.1:8001}

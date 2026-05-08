@@ -13,13 +13,13 @@ Monorepo profesional para **Proyectos**, una aplicacion full-stack con:
 ```text
 .
 ├── docker-compose.yml          # Orquesta todo el proyecto
-├── inmuebles_back/             # API FastAPI
+├── proyectos_back/             # API FastAPI
 │   ├── Dockerfile              # Imagen backend multi-stage reducida
 │   ├── docker-compose.yml      # Compose solo backend + db
 │   ├── migrations/             # Migraciones SQL de PostgreSQL
 │   ├── requirements.txt
 │   └── app/
-└── inmuebles_front/            # App React/Vite
+└── proyectos_front/            # App React/Vite
     ├── Dockerfile              # Build React + runtime nginx
     ├── nginx.conf              # SPA fallback + headers basicos
     ├── package.json
@@ -168,13 +168,13 @@ ALGORITHM=HS256
 
 ## 🧬 Migraciones de base de datos
 
-La carpeta `inmuebles_back/migrations/` contiene el esquema versionado de
+La carpeta `proyectos_back/migrations/` contiene el esquema versionado de
 PostgreSQL.
 
 Para aplicar la migracion inicial manualmente:
 
 ```bash
-psql "$DATABASE_URL" -f inmuebles_back/migrations/001_initial_schema.sql
+psql "$DATABASE_URL" -f proyectos_back/migrations/001_initial_schema.sql
 ```
 
 En Docker, la app tambien inicializa las tablas al arrancar para facilitar la
@@ -262,7 +262,7 @@ docker compose up --build -d
 Backend:
 
 ```bash
-cd inmuebles_back
+cd proyectos_back
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -272,7 +272,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8001
 Frontend:
 
 ```bash
-cd inmuebles_front
+cd proyectos_front
 npm install
 VITE_API_URL=http://127.0.0.1:8001 npm run dev -- --host 127.0.0.1 --port 5174
 ```
@@ -284,7 +284,7 @@ VITE_API_URL=http://127.0.0.1:8001 npm run dev -- --host 127.0.0.1 --port 5174
 Frontend:
 
 ```bash
-cd inmuebles_front
+cd proyectos_front
 npm run lint
 npm run test
 npm run build
@@ -294,7 +294,7 @@ npm audit --audit-level=low
 Backend:
 
 ```bash
-cd inmuebles_back
+cd proyectos_back
 python3 -m py_compile app/main.py app/models/schemas.py
 ```
 
