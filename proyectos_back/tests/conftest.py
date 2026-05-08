@@ -1,4 +1,9 @@
+import os
 from collections.abc import Generator
+
+os.environ.setdefault("DATABASE_URL", "sqlite://")
+os.environ.setdefault("SECRET_KEY", "test-secret-key")
+os.environ.setdefault("ALGORITHM", "HS256")
 
 import pytest
 from fastapi import FastAPI
